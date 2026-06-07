@@ -1400,11 +1400,11 @@ export default function App() {
         <svg viewBox="0 0 400 440" style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:1}}>
           {step.completedSVG(lesson.color)}
         </svg>
-        <canvas ref={canvasRef} width={400} height={440}
-          style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",cursor:"crosshair",touchAction:"none",zIndex:2}}/>
-        <svg viewBox="0 0 400 440" style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",opacity:ghostOp,pointerEvents:"none",zIndex:3}}>
+        <svg viewBox="0 0 400 440" style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",opacity:ghostOp,pointerEvents:"none",zIndex:2}}>
           {step.ghost(lesson.color)}
         </svg>
+        <canvas ref={canvasRef} width={400} height={440}
+          style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",cursor:"crosshair",touchAction:"none",zIndex:3}}/>
       </div>
       {/* overlays sit outside the zoom wrapper so they stay fixed */}
       <div style={{position:"absolute",top:10,left:10,zIndex:4,
