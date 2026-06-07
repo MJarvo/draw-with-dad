@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
 // ═══════════════════════════════════════════════════════════════════════
 // MECHANICS — matches real ArtWorkout behaviour:
@@ -532,6 +533,7 @@ export default function App() {
   const [brushCol, setBrushCol]= useState("#E53935");
   const [ghostOp,  setGhostOp] = useState(0.78);
   const [done,     setDone]    = useState([]);
+  const [capturedCanvas, setCapturedCanvas] = useState(null);
 
   const canvasRef = useRef(null);
   const drawing   = useRef(false);
@@ -620,9 +622,47 @@ export default function App() {
     setTimeout(()=>{ const c=canvasRef.current; if(c) c.getContext("2d").clearRect(0,0,c.width,c.height); },40);
   };
   const nextStep=()=>{
-    if(isLast){ setDone(p=>[...new Set([...p,lesson.id])]); setScreen("complete"); }
-    else setStepIdx(i=>i+1);
+    if(isLast){
+      setCapturedCanvas(canvasRef.current?.toDataURL("image/png") ?? null);
+      setDone(p=>[...new Set([...p,lesson.id])]);
+      setScreen("complete");
+    } else setStepIdx(i=>i+1);
   };
+
+  const saveDrawing = useCallback(()=>{
+    if(!lesson) return;
+    const lastStep = lesson.steps[lesson.steps.length - 1];
+    const svgMarkup = renderToStaticMarkup(
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 440">
+        {lastStep.completedSVG()}
+      </svg>
+    );
+    const blob = new Blob([svgMarkup], {type:"image/svg+xml;charset=utf-8"});
+    const svgUrl = URL.createObjectURL(blob);
+    const svgImg = new Image();
+    svgImg.onload = () => {
+      const off = document.createElement("canvas");
+      off.width = 800; off.height = 880;
+      const ctx = off.getContext("2d");
+      ctx.scale(2, 2);
+      ctx.fillStyle = BG;
+      ctx.fillRect(0, 0, 400, 440);
+      ctx.drawImage(svgImg, 0, 0, 400, 440);
+      URL.revokeObjectURL(svgUrl);
+      const finish = () => {
+        const a = document.createElement("a");
+        a.href = off.toDataURL("image/png");
+        a.download = `${lesson.title.replace(/\s+/g,"-")}.png`;
+        a.click();
+      };
+      if(capturedCanvas) {
+        const userImg = new Image();
+        userImg.onload = () => { ctx.drawImage(userImg, 0, 0, 400, 440); finish(); };
+        userImg.src = capturedCanvas;
+      } else finish();
+    };
+    svgImg.src = svgUrl;
+  },[lesson, capturedCanvas]);
   const goHome=()=>{ setScreen("home"); setLesson(null); setStepIdx(0); };
   const cycleGhost=()=>setGhostOp(o=>o<0.5?0.82:o<0.75?0.45:0.78);
 
@@ -700,28 +740,70 @@ export default function App() {
   );
 
   // ══════════ COMPLETE ══════════
-  if(screen==="complete") return (
-    <div style={{...appStyle,background:"linear-gradient(160deg,#0f0f1e,#18080e)",justifyContent:"center",padding:24,textAlign:"center"}}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
-        @keyframes popIn{from{opacity:0;transform:scale(0) rotate(-20deg)}to{opacity:1;transform:scale(1) rotate(0)}}
-        @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-        @keyframes fall{0%{opacity:1;transform:translateY(-30px) rotate(0)}100%{opacity:0;transform:translateY(560px) rotate(720deg)}}
-        .bb{transition:transform 0.15s;}.bb:hover{transform:scale(1.05);}.bb:active{transform:scale(0.94);}
-      `}</style>
-      {["#E53935","#FF9800","#FFD600","#4CAF50","#7C4DFF","#2196F3","#FF69B4","#00BCD4"].map((c,i)=>(
-        <div key={i} style={{position:"fixed",top:-30,left:`${4+i*13}%`,width:13,height:13,background:c,borderRadius:i%2===0?"50%":3,animation:`fall ${1.4+i*0.2}s ${i*0.12}s ease-in forwards`,zIndex:10}}/>
-      ))}
-      <div style={{fontSize:88,animation:"bounce 1s ease infinite",filter:"drop-shadow(0 0 26px #FFD700)"}}>🎉</div>
-      <h2 style={{fontSize:"clamp(30px,8vw,44px)",fontWeight:900,margin:"10px 0 8px",background:`linear-gradient(135deg,${lesson.color},#FFD600)`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>AMAZING!!</h2>
-      <p style={{fontSize:18,color:"#aaa",fontWeight:800,margin:"0 0 20px"}}>You drew a {lesson.title}! {lesson.emoji}</p>
-      <Stars/>
-      <div style={{display:"flex",flexDirection:"column",gap:12,marginTop:28,width:"100%",maxWidth:300}}>
-        <button className="bb" onClick={()=>startLesson(lesson)} style={{background:`linear-gradient(135deg,${lesson.color},${lesson.color}bb)`,color:"white",border:"none",borderRadius:18,padding:"16px 24px",fontSize:17,fontWeight:900,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 8px 24px ${lesson.color}55`}}>🔄 Draw it again!</button>
-        <button className="bb" onClick={goHome} style={{background:"#fff1",color:"#aaa",border:"1.5px solid #333",borderRadius:18,padding:"14px 24px",fontSize:15,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>🏠 Pick another</button>
+  if(screen==="complete") {
+    const lastStep = lesson.steps[lesson.steps.length - 1];
+    const DrawingPreview = (
+      <div style={{position:"relative",width:"100%",height:"100%",borderRadius:20,overflow:"hidden",boxShadow:`0 12px 48px #000c,0 0 0 2px ${lesson.color}44`}}>
+        <div style={{position:"absolute",inset:0,background:BG,zIndex:0}}/>
+        <svg viewBox="0 0 400 440" style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",zIndex:1}}>
+          {lastStep.completedSVG()}
+        </svg>
+        {capturedCanvas && (
+          <img src={capturedCanvas} alt="your drawing" style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",zIndex:2}}/>
+        )}
       </div>
-    </div>
-  );
+    );
+    const Buttons = (
+      <div style={{display:"flex",flexDirection:"column",gap:12,width:"100%"}}>
+        <button className="bb" onClick={saveDrawing} style={{background:"linear-gradient(135deg,#4CAF50,#2E7D32)",color:"white",border:"none",borderRadius:18,padding:"15px 24px",fontSize:17,fontWeight:900,cursor:"pointer",fontFamily:"inherit",boxShadow:"0 8px 24px #4CAF5055",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+          💾 Save my drawing!
+        </button>
+        <button className="bb" onClick={()=>startLesson(lesson)} style={{background:`linear-gradient(135deg,${lesson.color},${lesson.color}bb)`,color:"white",border:"none",borderRadius:18,padding:"15px 24px",fontSize:16,fontWeight:900,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 8px 24px ${lesson.color}55`}}>🔄 Draw it again!</button>
+        <button className="bb" onClick={goHome} style={{background:"#fff1",color:"#aaa",border:"1.5px solid #333",borderRadius:18,padding:"13px 24px",fontSize:15,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>🏠 Pick another</button>
+      </div>
+    );
+    return (
+      <div style={{background:"linear-gradient(160deg,#0f0f1e,#18080e)",fontFamily:"'Nunito','Arial Rounded MT Bold',sans-serif",minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",overflow:"auto",boxSizing:"border-box"}}>
+        <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
+          @keyframes popIn{from{opacity:0;transform:scale(0) rotate(-20deg)}to{opacity:1;transform:scale(1) rotate(0)}}
+          @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+          @keyframes fall{0%{opacity:1;transform:translateY(-30px) rotate(0)}100%{opacity:0;transform:translateY(560px) rotate(720deg)}}
+          .bb{transition:transform 0.15s;}.bb:hover{transform:scale(1.05);}.bb:active{transform:scale(0.94);}
+        `}</style>
+        {["#E53935","#FF9800","#FFD600","#4CAF50","#7C4DFF","#2196F3","#FF69B4","#00BCD4"].map((c,i)=>(
+          <div key={i} style={{position:"fixed",top:-30,left:`${4+i*13}%`,width:13,height:13,background:c,borderRadius:i%2===0?"50%":3,animation:`fall ${1.4+i*0.2}s ${i*0.12}s ease-in forwards`,zIndex:10,pointerEvents:"none"}}/>
+        ))}
+        {isLandscape ? (
+          /* ── LANDSCAPE: drawing left, celebration right ── */
+          <div style={{display:"flex",alignItems:"center",gap:32,width:"100%",maxWidth:1100,padding:"20px 32px",boxSizing:"border-box"}}>
+            <div style={{flex:"0 0 auto",aspectRatio:"400/440",height:"min(80dvh,520px)"}}>
+              {DrawingPreview}
+            </div>
+            <div style={{flex:1,textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:16}}>
+              <div style={{fontSize:72,animation:"bounce 1s ease infinite",filter:"drop-shadow(0 0 26px #FFD700)"}}>🎉</div>
+              <h2 style={{fontSize:"clamp(28px,4vw,44px)",fontWeight:900,margin:0,background:`linear-gradient(135deg,${lesson.color},#FFD600)`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>AMAZING!!</h2>
+              <p style={{fontSize:17,color:"#aaa",fontWeight:800,margin:0}}>You drew a {lesson.title}! {lesson.emoji}</p>
+              <Stars/>
+              <div style={{width:"100%",maxWidth:320}}>{Buttons}</div>
+            </div>
+          </div>
+        ) : (
+          /* ── PORTRAIT: stacked ── */
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16,padding:"24px 16px",width:"100%",maxWidth:420,boxSizing:"border-box"}}>
+            <div style={{fontSize:72,animation:"bounce 1s ease infinite",filter:"drop-shadow(0 0 26px #FFD700)"}}>🎉</div>
+            <h2 style={{fontSize:"clamp(28px,8vw,44px)",fontWeight:900,margin:0,background:`linear-gradient(135deg,${lesson.color},#FFD600)`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>AMAZING!!</h2>
+            <p style={{fontSize:16,color:"#aaa",fontWeight:800,margin:0}}>You drew a {lesson.title}! {lesson.emoji}</p>
+            <Stars/>
+            <div style={{width:"100%",aspectRatio:"400/440"}}>
+              {DrawingPreview}
+            </div>
+            <div style={{width:"100%"}}>{Buttons}</div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   // ══════════ DRAW SCREEN ══════════
   const Canvas = (
