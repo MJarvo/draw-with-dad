@@ -22,10 +22,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 const SW = 6;      // standard outline stroke width
 const BG = "#fafaf8"; // canvas bg
 
-// Ghost helpers — always white dashes, clearly visible over any fill
+// Ghost helpers — grey so kids see colour appear as they draw over the guide
 const GW = 5;
 const GD = "12 6";
-const GC = "#ffffff";
+
+// Side-effect: gFill stores the intended colour so auto-colour can read it
+let _lastGhostFill = "#E53935";
 
 // Render solid outline group
 const ol = (children, sw=SW) => (
@@ -34,20 +36,24 @@ const ol = (children, sw=SW) => (
   </g>
 );
 
-// Ghost: thin line guide (white dashes)
+// Ghost: thin line guide — grey dashes, kids trace over with dark brush
 const gLine = (children) => (
-  <g fill="none" stroke={GC} strokeWidth={GW} strokeDasharray={GD} strokeLinejoin="round" strokeLinecap="round" opacity={0.95}>
+  <g fill="none" stroke="#AAAAAA" strokeWidth={GW} strokeDasharray={GD} strokeLinejoin="round" strokeLinecap="round" opacity={0.85}>
     {children}
   </g>
 );
 
-// Ghost: filled shape guide (coloured + white dashed border — shows what to colour in)
-const gFill = (fillColor, children) => (
-  <g opacity={0.82}>
-    <g fill={fillColor} stroke="none">{children}</g>
-    <g fill="none" stroke={GC} strokeWidth={GW} strokeDasharray={GD} strokeLinejoin="round" strokeLinecap="round">{children}</g>
-  </g>
-);
+// Ghost: filled shape guide — grey fill + grey dashed border
+// The real colour appears as the kid draws over the grey region
+const gFill = (fillColor, children) => {
+  _lastGhostFill = fillColor;
+  return (
+    <g opacity={0.75}>
+      <g fill="#CCCCCC" stroke="none">{children}</g>
+      <g fill="none" stroke="#AAAAAA" strokeWidth={GW} strokeDasharray={GD} strokeLinejoin="round" strokeLinecap="round">{children}</g>
+    </g>
+  );
+};
 
 // ═══════════════════════════════════════════════════════════════════════
 // LESSON: 🍕 PIZZA SLICE
@@ -1005,9 +1011,16 @@ export default function App() {
   const [done,     setDone]    = useState([]);
   const [capturedCanvas, setCapturedCanvas] = useState(null);
 
-  const canvasRef = useRef(null);
-  const drawing   = useRef(false);
-  const lastPos   = useRef(null);
+  const canvasRef     = useRef(null);
+  const drawing       = useRef(false);
+  const lastPos       = useRef(null);
+  const strokeHistory = useRef([]);          // undo stack (dataURLs)
+  const pinchRef      = useRef(null);        // active pinch state
+  const justPinched   = useRef(false);       // prevent draw-dot after pinch ends
+  const [zoom, setZoom] = useState(1);
+  const zoomRef       = useRef(1);           // always-current zoom for event handlers
+  const [pan,  setPan]  = useState({x:0,y:0});
+  const panRef        = useRef({x:0,y:0});
 
   const PALETTE = [
     "#E53935","#FF9800","#FFD600","#4CAF50",
@@ -1022,6 +1035,8 @@ export default function App() {
   const isFill     = step?.type === "fill";
   const phaseCol   = lesson?.color ?? "#fff";
 
+  // getBoundingClientRect accounts for CSS transforms on parents, so zoom/pan
+  // are automatically handled without any manual math here.
   const getPos = (e) => {
     const c = canvasRef.current;
     if (!c) return {x:0,y:0};
@@ -1030,28 +1045,89 @@ export default function App() {
     return { x:(s.clientX-r.left)*(c.width/r.width), y:(s.clientY-r.top)*(c.height/r.height) };
   };
 
+  const getPinchDist = (touches) =>
+    Math.hypot(touches[1].clientX-touches[0].clientX, touches[1].clientY-touches[0].clientY);
+
+  const undo = useCallback(()=>{
+    const c = canvasRef.current;
+    if (!c || strokeHistory.current.length === 0) return;
+    const dataUrl = strokeHistory.current.pop();
+    const img = new Image();
+    img.onload = () => {
+      const ctx = c.getContext("2d");
+      ctx.clearRect(0,0,c.width,c.height);
+      ctx.drawImage(img,0,0);
+    };
+    img.src = dataUrl;
+  },[]);
+
   const onDown = useCallback((e)=>{
-    e.preventDefault(); drawing.current=true;
-    const p=getPos(e); lastPos.current=p;
-    const ctx=canvasRef.current?.getContext("2d");
-    if(!ctx) return;
+    // Two-finger = start pinch, not a draw stroke
+    if (e.touches && e.touches.length >= 2) {
+      drawing.current = false;
+      pinchRef.current = {
+        dist: getPinchDist(e.touches),
+        startZoom: zoomRef.current,
+        startPan: {...panRef.current},
+        startMidX: (e.touches[0].clientX+e.touches[1].clientX)/2,
+        startMidY: (e.touches[0].clientY+e.touches[1].clientY)/2,
+      };
+      return;
+    }
+    e.preventDefault();
+    if (justPinched.current) { justPinched.current = false; return; }
+    drawing.current = true;
+    // Save canvas snapshot for undo (cap stack at 30)
+    const c = canvasRef.current;
+    if (c) {
+      if (strokeHistory.current.length >= 30) strokeHistory.current.shift();
+      strokeHistory.current.push(c.toDataURL());
+    }
+    const p = getPos(e); lastPos.current = p;
+    const ctx = c?.getContext("2d");
+    if (!ctx) return;
     ctx.beginPath(); ctx.arc(p.x,p.y,brushSz/2,0,Math.PI*2);
     ctx.fillStyle=brushCol; ctx.fill();
   },[brushSz,brushCol]);
 
   const onMove = useCallback((e)=>{
-    e.preventDefault(); if(!drawing.current) return;
-    const p=getPos(e);
-    const ctx=canvasRef.current?.getContext("2d");
-    if(!ctx) return;
+    e.preventDefault();
+    // Two-finger = update pinch zoom + pan
+    if (e.touches && e.touches.length >= 2 && pinchRef.current) {
+      const { dist: d0, startZoom, startPan, startMidX, startMidY } = pinchRef.current;
+      const d1 = getPinchDist(e.touches);
+      const newZoom = Math.min(4, Math.max(1, startZoom * (d1/d0)));
+      const midX = (e.touches[0].clientX+e.touches[1].clientX)/2;
+      const midY = (e.touches[0].clientY+e.touches[1].clientY)/2;
+      const newPan = {
+        x: startPan.x + (midX - startMidX),
+        y: startPan.y + (midY - startMidY),
+      };
+      zoomRef.current = newZoom;
+      panRef.current = newPan;
+      setZoom(newZoom);
+      setPan(newPan);
+      return;
+    }
+    if (!drawing.current) return;
+    const p = getPos(e);
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx) return;
     ctx.beginPath(); ctx.moveTo(lastPos.current.x,lastPos.current.y);
     ctx.lineTo(p.x,p.y);
     ctx.strokeStyle=brushCol; ctx.lineWidth=brushSz;
     ctx.lineCap="round"; ctx.lineJoin="round"; ctx.stroke();
-    lastPos.current=p;
+    lastPos.current = p;
   },[brushSz,brushCol]);
 
-  const onUp = useCallback(()=>{ drawing.current=false; },[]);
+  const onUp = useCallback((e)=>{
+    if (pinchRef.current) {
+      pinchRef.current = null;
+      justPinched.current = true;
+      setTimeout(()=>{ justPinched.current = false; }, 300);
+    }
+    drawing.current = false;
+  },[]);
 
   useEffect(()=>{
     const c=canvasRef.current;
@@ -1077,6 +1153,18 @@ export default function App() {
   useEffect(()=>{
     if(!step) return;
     setBrushSz(step.type==="fill" ? 22 : 12);
+    // Auto-select brush colour: call ghost() to trigger gFill side-effect
+    if (step.type === "fill") {
+      _lastGhostFill = "#E53935";
+      step.ghost(); // triggers gFill which sets _lastGhostFill
+      setBrushCol(_lastGhostFill);
+    } else {
+      setBrushCol("#1a1a1a"); // line/trace steps always use dark
+    }
+    // Reset zoom/pan when moving to new step
+    zoomRef.current = 1; panRef.current = {x:0,y:0};
+    setZoom(1); setPan({x:0,y:0});
+    strokeHistory.current = [];
   },[stepIdx,lesson]);
 
   const [isLandscape, setIsLandscape] = useState(()=>window.innerWidth > window.innerHeight);
@@ -1303,26 +1391,33 @@ export default function App() {
   const Canvas = (
     <div style={{position:"relative",width:"100%",height:"100%",borderRadius:12,overflow:"hidden",
       boxShadow:"0 8px 40px #0008, 0 2px 0 #fff2 inset"}}>
-      <div style={{position:"absolute",inset:0,background:BG,zIndex:0}}/>
-      <svg viewBox="0 0 400 440" style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:1}}>
-        {step.completedSVG(lesson.color)}
-      </svg>
-      <canvas ref={canvasRef} width={400} height={440}
-        style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",cursor:"crosshair",touchAction:"none",zIndex:2}}/>
-      <svg viewBox="0 0 400 440" style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",opacity:ghostOp,pointerEvents:"none",zIndex:3}}>
-        {step.ghost(lesson.color)}
-      </svg>
-      {/* type badge — simple pill, no glow */}
+      {/* inner wrapper receives the pinch-zoom transform */}
+      <div style={{position:"absolute",inset:0,
+        transform:`translate(${pan.x}px,${pan.y}px) scale(${zoom})`,
+        transformOrigin:"center center",
+        willChange:"transform"}}>
+        <div style={{position:"absolute",inset:0,background:BG,zIndex:0}}/>
+        <svg viewBox="0 0 400 440" style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:1}}>
+          {step.completedSVG(lesson.color)}
+        </svg>
+        <canvas ref={canvasRef} width={400} height={440}
+          style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",cursor:"crosshair",touchAction:"none",zIndex:2}}/>
+        <svg viewBox="0 0 400 440" style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",opacity:ghostOp,pointerEvents:"none",zIndex:3}}>
+          {step.ghost(lesson.color)}
+        </svg>
+      </div>
+      {/* overlays sit outside the zoom wrapper so they stay fixed */}
       <div style={{position:"absolute",top:10,left:10,zIndex:4,
         background:isFill?"#e67e22":"#2980b9",borderRadius:20,
         padding:"4px 12px",fontSize:12,fontWeight:900,color:"#fff",letterSpacing:"0.05em"}}>
         {isFill?"COLOUR IN":"TRACE"}
       </div>
-      <button onClick={cycleGhost}
-        style={{position:"absolute",top:10,right:10,zIndex:4,background:"#0008",border:"none",
-          borderRadius:8,padding:"4px 10px",fontSize:11,fontWeight:800,color:"#aaa",cursor:"pointer",fontFamily:F}}>
-        guide: {ghostOp<0.55?"faint":ghostOp<0.75?"medium":"bright"}
-      </button>
+      {zoom > 1 && (
+        <div style={{position:"absolute",bottom:10,left:"50%",transform:"translateX(-50%)",zIndex:4,
+          background:"#0007",borderRadius:12,padding:"3px 10px",fontSize:11,fontWeight:800,color:"#fff"}}>
+          {zoom.toFixed(1)}×
+        </div>
+      )}
     </div>
   );
 
@@ -1385,14 +1480,23 @@ export default function App() {
         ))}
       </div>
 
-      {/* next button — solid, no gradient needed */}
-      <button className="btn" onClick={nextStep}
-        style={{width:"100%",background:phaseCol,border:"none",borderRadius:12,
-          padding:ls?"13px":"16px",fontSize:ls?15:17,fontWeight:900,cursor:"pointer",
-          color:"#fff",fontFamily:F,letterSpacing:"0.01em",
-          boxShadow:`0 4px 0 ${phaseCol}99`,marginTop:"auto"}}>
-        {isLast ? "Finished!" : "Done — Next step →"}
-      </button>
+      {/* undo + next row */}
+      <div style={{display:"flex",gap:8,marginTop:"auto"}}>
+        <button className="btn" onClick={undo}
+          style={{background:"#fff1",border:"2px solid #fff2",borderRadius:12,
+            padding:ls?"13px 10px":"16px 12px",fontSize:ls?18:20,fontWeight:900,cursor:"pointer",
+            color:"#aaa",fontFamily:F,flexShrink:0}}
+          title="Undo last stroke">
+          ↩
+        </button>
+        <button className="btn" onClick={nextStep}
+          style={{flex:1,background:phaseCol,border:"none",borderRadius:12,
+            padding:ls?"13px":"16px",fontSize:ls?15:17,fontWeight:900,cursor:"pointer",
+            color:"#fff",fontFamily:F,letterSpacing:"0.01em",
+            boxShadow:`0 4px 0 ${phaseCol}99`}}>
+          {isLast ? "Finished!" : "Done — Next →"}
+        </button>
+      </div>
     </div>
   );
 
