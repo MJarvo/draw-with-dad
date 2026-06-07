@@ -666,73 +666,83 @@ export default function App() {
   const goHome=()=>{ setScreen("home"); setLesson(null); setStepIdx(0); };
   const cycleGhost=()=>setGhostOp(o=>o<0.5?0.82:o<0.75?0.45:0.78);
 
-  const appStyle={
-    minHeight:"100dvh",fontFamily:"'Nunito','Arial Rounded MT Bold',sans-serif",
-    display:"flex",flexDirection:"column",alignItems:"center",boxSizing:"border-box",
-  };
+  // Card tilts so they feel hand-placed, not generated
+  const TILTS = [-2.5, 1.8, -1.2, 2.1];
+  // Each lesson gets a bold solid card colour (not a dark gradient)
+  const CARD_BG = ["#E8380D","#6C3FD4","#D4006A","#1565C0"];
+
+  const F = "'Baloo 2', 'Arial Rounded MT Bold', sans-serif";
+
+  const globalStyles = `
+    @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&display=swap');
+    * { box-sizing: border-box; }
+    @keyframes bob { 0%,100%{transform:translateY(0) rotate(-1deg)} 50%{transform:translateY(-8px) rotate(1deg)} }
+    @keyframes popIn { from{opacity:0;transform:scale(0.6)} to{opacity:1;transform:scale(1)} }
+    @keyframes slideUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes confettiFall { 0%{opacity:1;transform:translateY(-20px) rotate(0deg)} 100%{opacity:0;transform:translateY(600px) rotate(540deg)} }
+    .card { transition: transform 0.18s, box-shadow 0.18s; }
+    .card:hover { transform: scale(1.05) rotate(0deg) !important; box-shadow: 0 12px 32px #0004 !important; }
+    .card:active { transform: scale(0.96) !important; }
+    .btn { transition: transform 0.12s; }
+    .btn:hover { transform: scale(1.03); }
+    .btn:active { transform: scale(0.96); }
+    .swatch { transition: transform 0.1s; }
+    .swatch:hover { transform: scale(1.2); }
+    .swatch:active { transform: scale(0.88); }
+  `;
 
   // ══════════ HOME ══════════
   if(screen==="home") return (
-    <div style={{...appStyle,background:"linear-gradient(160deg,#0f0f1e,#18080e,#080f18)",padding: isLandscape?"16px 32px":"20px 14px 36px",justifyContent:"center",minHeight:"100dvh",overflow:"auto"}}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
-        @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes shimmer{0%{background-position:200%}100%{background-position:-200%}}
-        .lc{transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.2s;}
-        .lc:hover{transform:translateY(-6px) scale(1.04);}
-        .lc:active{transform:scale(0.94);}
-      `}</style>
+    <div style={{minHeight:"100dvh",background:"#fdf7ee",fontFamily:F,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:isLandscape?"20px 40px":"28px 18px",overflow:"auto"}}>
+      <style>{globalStyles}</style>
+
       {isLandscape ? (
-        /* ── LANDSCAPE: title left, 4-card row right ── */
-        <div style={{display:"flex",alignItems:"center",gap:32,width:"100%",maxWidth:1100}}>
-          <div style={{textAlign:"center",minWidth:220,animation:"fadeUp 0.5s ease both"}}>
-            <div style={{fontSize:72,display:"inline-block",animation:"float 2.5s ease infinite",filter:"drop-shadow(0 0 22px #E8436A66)"}}>🎨</div>
-            <h1 style={{margin:"8px 0 6px",fontSize:"clamp(26px,3.5vw,38px)",fontWeight:900,letterSpacing:"-0.5px",background:"linear-gradient(90deg,#E53935,#FF9800,#FFD600,#4CAF50,#7C4DFF)",backgroundSize:"200% auto",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",animation:"shimmer 4s linear infinite"}}>Draw<br/>With Dad!</h1>
-            <p style={{margin:0,fontSize:13,color:"#555",fontWeight:800}}>Colour · Trace · Build 🖌️</p>
+        <div style={{display:"flex",alignItems:"center",gap:48,width:"100%",maxWidth:1060}}>
+          {/* Title block */}
+          <div style={{flexShrink:0,textAlign:"left"}}>
+            <div style={{fontSize:64,lineHeight:1,marginBottom:6}}>🎨</div>
+            <h1 style={{margin:"0 0 6px",fontSize:"clamp(32px,4vw,52px)",fontWeight:900,color:"#1a1a1a",lineHeight:1.05,letterSpacing:"-1px"}}>
+              Draw<br/>With<br/>Dad!
+            </h1>
+            <p style={{margin:0,fontSize:14,color:"#888",fontWeight:700,letterSpacing:"0.02em"}}>Step-by-step drawing for kids</p>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,flex:1}}>
-            {LESSONS.map((l,i)=>{
-              const fc=l.steps.filter(s=>s.type==="fill").length;
-              const lc=l.steps.filter(s=>s.type==="line").length;
-              return (
-                <div key={l.id} className="lc" onClick={()=>startLesson(l)} style={{background:`linear-gradient(145deg,#141428,${l.bg})`,borderRadius:22,padding:"20px 8px 16px",textAlign:"center",cursor:"pointer",boxShadow:`0 8px 32px ${l.color}33,inset 0 1px 0 ${l.color}22`,border:`1.5px solid ${l.color}44`,animation:`fadeUp ${0.3+i*0.1}s ease both`,position:"relative"}}>
-                  {done.includes(l.id)&&(<div style={{position:"absolute",top:8,right:8,background:"#4CAF50",borderRadius:"50%",width:22,height:22,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"white",fontWeight:900}}>✓</div>)}
-                  <div style={{fontSize:"clamp(40px,5vw,58px)",marginBottom:8,filter:`drop-shadow(0 4px 10px ${l.color}55)`}}>{l.emoji}</div>
-                  <div style={{fontSize:14,fontWeight:900,color:l.thumbColor}}>{l.title}</div>
-                  <div style={{display:"flex",gap:4,justifyContent:"center",marginTop:8,flexWrap:"wrap"}}>
-                    <span style={{fontSize:10,background:"#fff1",borderRadius:8,padding:"3px 7px",color:"#aaa",fontWeight:800}}>🎨 {fc}</span>
-                    <span style={{fontSize:10,background:"#fff1",borderRadius:8,padding:"3px 7px",color:"#aaa",fontWeight:800}}>✏️ {lc}</span>
-                  </div>
-                </div>
-              );
-            })}
+          {/* Cards row */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:16,flex:1}}>
+            {LESSONS.map((l,i)=>(
+              <div key={l.id} className="card" onClick={()=>startLesson(l)}
+                style={{background:CARD_BG[i],borderRadius:20,padding:"24px 12px 18px",textAlign:"center",cursor:"pointer",
+                  transform:`rotate(${TILTS[i]}deg)`,boxShadow:"0 6px 20px #0003",position:"relative",userSelect:"none"}}>
+                {done.includes(l.id) && (
+                  <div style={{position:"absolute",top:-8,right:-8,background:"#2ecc40",border:"3px solid #fff",borderRadius:"50%",width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:900,color:"#fff",zIndex:2}}>✓</div>
+                )}
+                <div style={{fontSize:"clamp(44px,5vw,60px)",marginBottom:10,display:"block"}}>{l.emoji}</div>
+                <div style={{fontSize:15,fontWeight:900,color:"#fff",textShadow:"0 1px 3px #0005"}}>{l.title}</div>
+                <div style={{marginTop:10,fontSize:12,color:"rgba(255,255,255,0.7)",fontWeight:700}}>{l.steps.length} steps</div>
+              </div>
+            ))}
           </div>
         </div>
       ) : (
-        /* ── PORTRAIT: original stacked layout ── */
         <>
-          <div style={{textAlign:"center",marginBottom:14,animation:"fadeUp 0.5s ease both"}}>
-            <div style={{fontSize:66,display:"inline-block",animation:"float 2.5s ease infinite",filter:"drop-shadow(0 0 22px #E8436A66)"}}>🎨</div>
-            <h1 style={{margin:"4px 0 6px",fontSize:"clamp(28px,7vw,40px)",fontWeight:900,letterSpacing:"-0.5px",background:"linear-gradient(90deg,#E53935,#FF9800,#FFD600,#4CAF50,#7C4DFF)",backgroundSize:"200% auto",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",animation:"shimmer 4s linear infinite"}}>Draw With Dad!</h1>
-            <p style={{margin:0,fontSize:15,color:"#555",fontWeight:800}}>Colour · Trace · Build up your drawing 🖌️</p>
+          <div style={{textAlign:"center",marginBottom:28,animation:"slideUp 0.4s ease both"}}>
+            <div style={{fontSize:56,display:"inline-block",animation:"bob 3s ease infinite"}}>🎨</div>
+            <h1 style={{margin:"8px 0 4px",fontSize:"clamp(34px,9vw,48px)",fontWeight:900,color:"#1a1a1a",letterSpacing:"-1px",lineHeight:1}}>Draw With Dad!</h1>
+            <p style={{margin:0,fontSize:14,color:"#999",fontWeight:700}}>Step-by-step drawing for kids</p>
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:14,width:"100%",maxWidth:420}}>
-            {LESSONS.map((l,i)=>{
-              const fc=l.steps.filter(s=>s.type==="fill").length;
-              const lc=l.steps.filter(s=>s.type==="line").length;
-              return (
-                <div key={l.id} className="lc" onClick={()=>startLesson(l)} style={{background:`linear-gradient(145deg,#141428,${l.bg})`,borderRadius:24,padding:"22px 10px 18px",textAlign:"center",cursor:"pointer",boxShadow:`0 8px 32px ${l.color}33,inset 0 1px 0 ${l.color}22`,border:`1.5px solid ${l.color}44`,animation:`fadeUp ${0.3+i*0.1}s ease both`,position:"relative"}}>
-                  {done.includes(l.id)&&(<div style={{position:"absolute",top:10,right:10,background:"#4CAF50",borderRadius:"50%",width:22,height:22,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"white",fontWeight:900}}>✓</div>)}
-                  <div style={{fontSize:52,marginBottom:8,filter:`drop-shadow(0 4px 10px ${l.color}55)`}}>{l.emoji}</div>
-                  <div style={{fontSize:15,fontWeight:900,color:l.thumbColor}}>{l.title}</div>
-                  <div style={{display:"flex",gap:6,justifyContent:"center",marginTop:8}}>
-                    <span style={{fontSize:11,background:"#fff1",borderRadius:8,padding:"3px 8px",color:"#aaa",fontWeight:800}}>🎨 {fc} fill</span>
-                    <span style={{fontSize:11,background:"#fff1",borderRadius:8,padding:"3px 8px",color:"#aaa",fontWeight:800}}>✏️ {lc} line</span>
-                  </div>
-                </div>
-              );
-            })}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,width:"100%",maxWidth:400}}>
+            {LESSONS.map((l,i)=>(
+              <div key={l.id} className="card" onClick={()=>startLesson(l)}
+                style={{background:CARD_BG[i],borderRadius:20,padding:"22px 10px 18px",textAlign:"center",cursor:"pointer",
+                  transform:`rotate(${TILTS[i]}deg)`,boxShadow:"0 6px 20px #0003",position:"relative",userSelect:"none",
+                  animation:`slideUp ${0.3+i*0.08}s ease both`}}>
+                {done.includes(l.id) && (
+                  <div style={{position:"absolute",top:-8,right:-8,background:"#2ecc40",border:"3px solid #fff",borderRadius:"50%",width:28,height:28,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:900,color:"#fff",zIndex:2}}>✓</div>
+                )}
+                <div style={{fontSize:52,marginBottom:10}}>{l.emoji}</div>
+                <div style={{fontSize:15,fontWeight:900,color:"#fff",textShadow:"0 1px 3px #0005"}}>{l.title}</div>
+                <div style={{marginTop:8,fontSize:12,color:"rgba(255,255,255,0.7)",fontWeight:700}}>{l.steps.length} steps</div>
+              </div>
+            ))}
           </div>
         </>
       )}
@@ -743,7 +753,8 @@ export default function App() {
   if(screen==="complete") {
     const lastStep = lesson.steps[lesson.steps.length - 1];
     const DrawingPreview = (
-      <div style={{position:"relative",width:"100%",height:"100%",borderRadius:20,overflow:"hidden",boxShadow:`0 12px 48px #000c,0 0 0 2px ${lesson.color}44`}}>
+      <div style={{position:"relative",width:"100%",height:"100%",borderRadius:16,overflow:"hidden",
+        boxShadow:"0 8px 32px #0004",border:"4px solid #fff"}}>
         <div style={{position:"absolute",inset:0,background:BG,zIndex:0}}/>
         <svg viewBox="0 0 400 440" style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",zIndex:1}}>
           {lastStep.completedSVG()}
@@ -754,51 +765,61 @@ export default function App() {
       </div>
     );
     const Buttons = (
-      <div style={{display:"flex",flexDirection:"column",gap:12,width:"100%"}}>
-        <button className="bb" onClick={saveDrawing} style={{background:"linear-gradient(135deg,#4CAF50,#2E7D32)",color:"white",border:"none",borderRadius:18,padding:"15px 24px",fontSize:17,fontWeight:900,cursor:"pointer",fontFamily:"inherit",boxShadow:"0 8px 24px #4CAF5055",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-          💾 Save my drawing!
+      <div style={{display:"flex",flexDirection:"column",gap:10,width:"100%"}}>
+        <button className="btn" onClick={saveDrawing}
+          style={{background:"#2ecc40",color:"#fff",border:"none",borderRadius:14,padding:"15px 24px",
+            fontSize:17,fontWeight:900,cursor:"pointer",fontFamily:F,
+            boxShadow:"0 4px 0 #27ae36",letterSpacing:"0.01em"}}>
+          Save my drawing
         </button>
-        <button className="bb" onClick={()=>startLesson(lesson)} style={{background:`linear-gradient(135deg,${lesson.color},${lesson.color}bb)`,color:"white",border:"none",borderRadius:18,padding:"15px 24px",fontSize:16,fontWeight:900,cursor:"pointer",fontFamily:"inherit",boxShadow:`0 8px 24px ${lesson.color}55`}}>🔄 Draw it again!</button>
-        <button className="bb" onClick={goHome} style={{background:"#fff1",color:"#aaa",border:"1.5px solid #333",borderRadius:18,padding:"13px 24px",fontSize:15,fontWeight:900,cursor:"pointer",fontFamily:"inherit"}}>🏠 Pick another</button>
+        <button className="btn" onClick={()=>startLesson(lesson)}
+          style={{background:lesson.color,color:"#fff",border:"none",borderRadius:14,padding:"14px 24px",
+            fontSize:16,fontWeight:900,cursor:"pointer",fontFamily:F,boxShadow:`0 4px 0 ${lesson.color}bb`}}>
+          Draw it again
+        </button>
+        <button className="btn" onClick={goHome}
+          style={{background:"transparent",color:"#777",border:"2.5px solid #ddd",borderRadius:14,
+            padding:"12px 24px",fontSize:15,fontWeight:800,cursor:"pointer",fontFamily:F}}>
+          Pick another
+        </button>
       </div>
     );
+
     return (
-      <div style={{background:"linear-gradient(160deg,#0f0f1e,#18080e)",fontFamily:"'Nunito','Arial Rounded MT Bold',sans-serif",minHeight:"100dvh",display:"flex",alignItems:"center",justifyContent:"center",overflow:"auto",boxSizing:"border-box"}}>
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
-          @keyframes popIn{from{opacity:0;transform:scale(0) rotate(-20deg)}to{opacity:1;transform:scale(1) rotate(0)}}
-          @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
-          @keyframes fall{0%{opacity:1;transform:translateY(-30px) rotate(0)}100%{opacity:0;transform:translateY(560px) rotate(720deg)}}
-          .bb{transition:transform 0.15s;}.bb:hover{transform:scale(1.05);}.bb:active{transform:scale(0.94);}
-        `}</style>
+      <div style={{minHeight:"100dvh",background:"#fdf7ee",fontFamily:F,display:"flex",alignItems:"center",justifyContent:"center",overflow:"auto",padding:"20px 16px",boxSizing:"border-box"}}>
+        <style>{globalStyles}</style>
+        {/* confetti */}
         {["#E53935","#FF9800","#FFD600","#4CAF50","#7C4DFF","#2196F3","#FF69B4","#00BCD4"].map((c,i)=>(
-          <div key={i} style={{position:"fixed",top:-30,left:`${4+i*13}%`,width:13,height:13,background:c,borderRadius:i%2===0?"50%":3,animation:`fall ${1.4+i*0.2}s ${i*0.12}s ease-in forwards`,zIndex:10,pointerEvents:"none"}}/>
+          <div key={i} style={{position:"fixed",top:-20,left:`${5+i*12}%`,width:i%2===0?10:14,height:i%2===0?14:10,
+            background:c,borderRadius:i%3===0?"50%":3,
+            animation:`confettiFall ${1.6+i*0.2}s ${i*0.1}s ease-in both`,zIndex:10,pointerEvents:"none"}}/>
         ))}
+
         {isLandscape ? (
-          /* ── LANDSCAPE: drawing left, celebration right ── */
-          <div style={{display:"flex",alignItems:"center",gap:32,width:"100%",maxWidth:1100,padding:"20px 32px",boxSizing:"border-box"}}>
-            <div style={{flex:"0 0 auto",aspectRatio:"400/440",height:"min(80dvh,520px)"}}>
+          <div style={{display:"flex",alignItems:"center",gap:40,width:"100%",maxWidth:980}}>
+            <div style={{flex:"0 0 auto",aspectRatio:"400/440",height:"min(76dvh,500px)",animation:"popIn 0.4s ease both"}}>
               {DrawingPreview}
             </div>
-            <div style={{flex:1,textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:16}}>
-              <div style={{fontSize:72,animation:"bounce 1s ease infinite",filter:"drop-shadow(0 0 26px #FFD700)"}}>🎉</div>
-              <h2 style={{fontSize:"clamp(28px,4vw,44px)",fontWeight:900,margin:0,background:`linear-gradient(135deg,${lesson.color},#FFD600)`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>AMAZING!!</h2>
-              <p style={{fontSize:17,color:"#aaa",fontWeight:800,margin:0}}>You drew a {lesson.title}! {lesson.emoji}</p>
+            <div style={{flex:1,display:"flex",flexDirection:"column",gap:16}}>
+              <div>
+                <div style={{fontSize:56,lineHeight:1}}>🎉</div>
+                <h2 style={{margin:"8px 0 4px",fontSize:"clamp(32px,4vw,48px)",fontWeight:900,color:"#1a1a1a",letterSpacing:"-1px"}}>You did it!</h2>
+                <p style={{margin:0,fontSize:16,color:"#888",fontWeight:700}}>You drew {lesson.title}! {lesson.emoji}</p>
+              </div>
               <Stars/>
-              <div style={{width:"100%",maxWidth:320}}>{Buttons}</div>
+              <div style={{maxWidth:320}}>{Buttons}</div>
             </div>
           </div>
         ) : (
-          /* ── PORTRAIT: stacked ── */
-          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16,padding:"24px 16px",width:"100%",maxWidth:420,boxSizing:"border-box"}}>
-            <div style={{fontSize:72,animation:"bounce 1s ease infinite",filter:"drop-shadow(0 0 26px #FFD700)"}}>🎉</div>
-            <h2 style={{fontSize:"clamp(28px,8vw,44px)",fontWeight:900,margin:0,background:`linear-gradient(135deg,${lesson.color},#FFD600)`,WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>AMAZING!!</h2>
-            <p style={{fontSize:16,color:"#aaa",fontWeight:800,margin:0}}>You drew a {lesson.title}! {lesson.emoji}</p>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16,width:"100%",maxWidth:400}}>
+            <div style={{fontSize:56}}>🎉</div>
+            <h2 style={{margin:0,fontSize:"clamp(32px,9vw,48px)",fontWeight:900,color:"#1a1a1a",letterSpacing:"-1px",textAlign:"center"}}>You did it!</h2>
+            <p style={{margin:0,fontSize:15,color:"#888",fontWeight:700}}>You drew {lesson.title}! {lesson.emoji}</p>
             <Stars/>
-            <div style={{width:"100%",aspectRatio:"400/440"}}>
+            <div style={{width:"100%",aspectRatio:"400/440",animation:"popIn 0.4s 0.2s ease both",opacity:0,animationFillMode:"forwards"}}>
               {DrawingPreview}
             </div>
-            <div style={{width:"100%"}}>{Buttons}</div>
+            {Buttons}
           </div>
         )}
       </div>
@@ -806,96 +827,125 @@ export default function App() {
   }
 
   // ══════════ DRAW SCREEN ══════════
+  // Warm dark studio feel — not a video game
+  const studioBg = "#1c1510";
+
   const Canvas = (
-    <div style={{position:"relative",width:"100%",height:"100%",borderRadius:22,overflow:"hidden",boxShadow:`0 14px 52px #000a,0 0 0 1.5px ${phaseCol}33`}}>
+    <div style={{position:"relative",width:"100%",height:"100%",borderRadius:12,overflow:"hidden",
+      boxShadow:"0 8px 40px #0008, 0 2px 0 #fff2 inset"}}>
       <div style={{position:"absolute",inset:0,background:BG,zIndex:0}}/>
       <svg viewBox="0 0 400 440" style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:1}}>
         {step.completedSVG(lesson.color)}
       </svg>
-      <canvas ref={canvasRef} width={400} height={440} style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",cursor:"crosshair",touchAction:"none",zIndex:2}}/>
+      <canvas ref={canvasRef} width={400} height={440}
+        style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",cursor:"crosshair",touchAction:"none",zIndex:2}}/>
       <svg viewBox="0 0 400 440" style={{position:"absolute",top:0,left:0,width:"100%",height:"100%",opacity:ghostOp,pointerEvents:"none",zIndex:3}}>
         {step.ghost(lesson.color)}
       </svg>
-      <div style={{position:"absolute",top:8,left:8,zIndex:4,background:isFill?"#FF980088":"#2196F388",borderRadius:10,padding:"4px 10px",fontSize:12,fontWeight:900,color:"white"}}>{isFill?"🖌️ COLOUR":"✏️ TRACE"}</div>
-      <button onClick={cycleGhost} style={{position:"absolute",top:8,right:8,zIndex:4,background:"#000a",border:"none",borderRadius:8,padding:"4px 8px",fontSize:12,fontWeight:900,color:"#888",cursor:"pointer",fontFamily:"inherit"}}>
-        👻 {ghostOp<0.55?"dim":ghostOp<0.75?"mid":"bright"}
+      {/* type badge — simple pill, no glow */}
+      <div style={{position:"absolute",top:10,left:10,zIndex:4,
+        background:isFill?"#e67e22":"#2980b9",borderRadius:20,
+        padding:"4px 12px",fontSize:12,fontWeight:900,color:"#fff",letterSpacing:"0.05em"}}>
+        {isFill?"COLOUR IN":"TRACE"}
+      </div>
+      <button onClick={cycleGhost}
+        style={{position:"absolute",top:10,right:10,zIndex:4,background:"#0008",border:"none",
+          borderRadius:8,padding:"4px 10px",fontSize:11,fontWeight:800,color:"#aaa",cursor:"pointer",fontFamily:F}}>
+        guide: {ghostOp<0.55?"faint":ghostOp<0.75?"medium":"bright"}
       </button>
     </div>
   );
 
   const Controls = (ls) => (
-    <>
-      {/* top bar */}
-      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-        <button onClick={goHome} style={{background:"#fff1",border:"1.5px solid #333",borderRadius:12,padding:"9px 13px",fontSize:17,cursor:"pointer",fontFamily:"inherit",fontWeight:900,color:"#888",flexShrink:0}}>←</button>
-        <div style={{flex:1,textAlign:"center",fontWeight:900,fontSize:ls?15:16,color:"#ddd"}}>{lesson.emoji} {lesson.title}</div>
-        <div style={{background:`${phaseCol}22`,border:`1.5px solid ${phaseCol}55`,borderRadius:12,padding:"7px 10px",fontSize:12,fontWeight:900,color:phaseCol,whiteSpace:"nowrap"}}>{stepIdx+1}/{totalSteps}</div>
-      </div>
-      {/* progress */}
-      <div style={{height:8,background:"#1a1a1a",borderRadius:6,marginBottom:8,overflow:"hidden"}}>
-        <div style={{height:"100%",width:`${((stepIdx+1)/totalSteps)*100}%`,background:`linear-gradient(90deg,${phaseCol},${phaseCol}88)`,borderRadius:6,transition:"width 0.4s cubic-bezier(0.34,1.56,0.64,1)",boxShadow:`0 0 8px ${phaseCol}88`}}/>
-      </div>
-      {/* hint */}
-      <div style={{background:"#fff0d",border:`1.5px solid ${phaseCol}44`,borderRadius:16,padding:"10px 14px",marginBottom:10,fontSize:ls?13:14,fontWeight:800,color:"#ddd",borderLeft:`4px solid ${phaseCol}`}}>
-        {isFill?"🖌️":"✏️"} {step.hint}
-        <div style={{fontSize:11,color:phaseCol,fontWeight:900,marginTop:3}}>{isFill?"Colour it in with a big brush!":"Trace along the dashed line!"}</div>
-      </div>
-      {/* palette */}
-      <div style={{background:"#fff08",border:"1.5px solid #fff1",borderRadius:18,padding:"10px 12px",marginBottom:8}}>
-        <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:8}}>
-          {[8,16,26].map(sz=>(
-            <button key={sz} className="cb" onClick={()=>setBrushSz(sz)} style={{width:ls?34:38,height:ls?34:38,borderRadius:"50%",border:"none",background:brushSz===sz?"#fff2":"#fff1",outline:brushSz===sz?`2.5px solid ${phaseCol}`:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-              <div style={{width:sz*0.7,height:sz*0.7,borderRadius:"50%",background:brushCol}}/>
-            </button>
-          ))}
-          <div style={{width:1,height:28,background:"#fff2",flexShrink:0}}/>
-          <div style={{fontSize:11,color:"#666",fontWeight:800}}>brush size</div>
+    <div style={{display:"flex",flexDirection:"column",gap:ls?8:6,height:"100%"}}>
+      {/* back + title + step counter */}
+      <div style={{display:"flex",alignItems:"center",gap:8}}>
+        <button onClick={goHome} className="btn"
+          style={{background:"#fff1",border:"2px solid #fff2",borderRadius:10,
+            padding:"8px 12px",fontSize:16,cursor:"pointer",fontFamily:F,fontWeight:900,color:"#aaa",flexShrink:0}}>
+          ←
+        </button>
+        <div style={{flex:1,fontWeight:900,fontSize:ls?14:16,color:"#ddd",textAlign:"center"}}>
+          {lesson.title}
         </div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(8,1fr)",gap:ls?5:4}}>
-          {PALETTE.map(c=>(
-            <button key={c} className="cb" onClick={()=>setBrushCol(c)} style={{width:"100%",aspectRatio:"1",borderRadius:"50%",background:c,border:c==="#ffffff"?"1.5px solid #555":"none",boxShadow:brushCol===c?`0 0 0 2px #111,0 0 0 4px ${c}`:"none",cursor:"pointer"}}/>
-          ))}
+        <div style={{background:phaseCol,borderRadius:10,padding:"6px 11px",
+          fontSize:12,fontWeight:900,color:"#fff",whiteSpace:"nowrap",flexShrink:0}}>
+          {stepIdx+1} / {totalSteps}
         </div>
       </div>
-      {/* next */}
-      <button className="nb" onClick={nextStep} style={{width:"100%",background:`linear-gradient(135deg,${phaseCol},${phaseCol}aa)`,border:"none",borderRadius:18,padding:ls?"14px":"15px",fontSize:ls?15:16,fontWeight:900,cursor:"pointer",color:"white",boxShadow:`0 6px 24px ${phaseCol}55`,fontFamily:"inherit"}}>
-        {isLast?"🌟 I'm finished!":"✅ Done → Next step"}
+
+      {/* progress bar — chunky, no glow */}
+      <div style={{height:10,background:"#333",borderRadius:999,overflow:"hidden"}}>
+        <div style={{height:"100%",width:`${((stepIdx+1)/totalSteps)*100}%`,
+          background:phaseCol,borderRadius:999,
+          transition:"width 0.35s cubic-bezier(0.34,1.56,0.64,1)"}}/>
+      </div>
+
+      {/* hint — sticky note style */}
+      <div style={{background:"#fff9c4",borderRadius:10,padding:"10px 14px",
+        borderLeft:`5px solid ${phaseCol}`,boxShadow:"0 2px 8px #0002"}}>
+        <div style={{fontWeight:900,fontSize:ls?13:15,color:"#333",lineHeight:1.35}}>{step.hint}</div>
+        <div style={{fontWeight:700,fontSize:11,color:"#888",marginTop:3}}>
+          {isFill ? "Fill it in using a big brush" : "Trace carefully over the guide"}
+        </div>
+      </div>
+
+      {/* brush sizes */}
+      <div style={{display:"flex",alignItems:"center",gap:8}}>
+        <span style={{fontSize:11,fontWeight:800,color:"#666",flexShrink:0}}>Size:</span>
+        {[8,16,26].map(sz=>(
+          <button key={sz} className="swatch" onClick={()=>setBrushSz(sz)}
+            style={{width:ls?36:40,height:ls?36:40,borderRadius:"50%",border:"none",
+              background:brushSz===sz?"#fff":"#fff1",
+              outline:brushSz===sz?`3px solid ${phaseCol}`:"3px solid transparent",
+              cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+            <div style={{width:sz*0.65,height:sz*0.65,borderRadius:"50%",background:brushCol}}/>
+          </button>
+        ))}
+      </div>
+
+      {/* colour palette — square swatches, feels more like a real paint set */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(8,1fr)",gap:5,flex:1,alignContent:"start"}}>
+        {PALETTE.map(c=>(
+          <button key={c} className="swatch" onClick={()=>setBrushCol(c)}
+            style={{aspectRatio:"1",borderRadius:8,background:c,cursor:"pointer",border:"none",
+              outline:brushCol===c?"3px solid #fff":"3px solid transparent",
+              boxShadow:brushCol===c?"0 0 0 2px "+phaseCol:"none"}}>
+          </button>
+        ))}
+      </div>
+
+      {/* next button — solid, no gradient needed */}
+      <button className="btn" onClick={nextStep}
+        style={{width:"100%",background:phaseCol,border:"none",borderRadius:12,
+          padding:ls?"13px":"16px",fontSize:ls?15:17,fontWeight:900,cursor:"pointer",
+          color:"#fff",fontFamily:F,letterSpacing:"0.01em",
+          boxShadow:`0 4px 0 ${phaseCol}99`,marginTop:"auto"}}>
+        {isLast ? "Finished!" : "Done — Next step →"}
       </button>
-    </>
+    </div>
   );
 
   if(isLandscape) return (
-    <div style={{background:lesson.bg,fontFamily:"'Nunito','Arial Rounded MT Bold',sans-serif",display:"flex",height:"100dvh",overflow:"hidden",boxSizing:"border-box",padding:12,gap:12}}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
-        .cb{transition:transform 0.13s;}.cb:hover{transform:scale(1.14);}.cb:active{transform:scale(0.86);}
-        .nb{transition:transform 0.14s;}.nb:hover{transform:scale(1.04);}.nb:active{transform:scale(0.95);}
-      `}</style>
-      {/* Canvas — fills left side, correct aspect ratio */}
-      <div style={{flex:"0 0 auto",aspectRatio:"400/440",height:"100%",maxHeight:"100%"}}>
+    <div style={{background:studioBg,fontFamily:F,display:"flex",height:"100dvh",overflow:"hidden",padding:14,gap:14,boxSizing:"border-box"}}>
+      <style>{globalStyles}</style>
+      <div style={{flex:"0 0 auto",aspectRatio:"400/440",height:"100%"}}>
         {Canvas}
       </div>
-      {/* Controls — right panel */}
-      <div style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"space-between",minWidth:0,overflow:"hidden"}}>
+      <div style={{flex:1,minWidth:0,overflow:"hidden"}}>
         {Controls(true)}
       </div>
     </div>
   );
 
-  // ── PORTRAIT fallback ──
   return (
-    <div style={{...appStyle,background:lesson.bg,padding:"12px 10px 22px"}}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
-        @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-        .cb{transition:transform 0.13s;}.cb:hover{transform:scale(1.14);}.cb:active{transform:scale(0.86);}
-        .nb{transition:transform 0.14s;}.nb:hover{transform:scale(1.04);}.nb:active{transform:scale(0.95);}
-      `}</style>
-      <div style={{width:"100%",maxWidth:440,display:"flex",flexDirection:"column",gap:0}}>
+    <div style={{background:studioBg,fontFamily:F,minHeight:"100dvh",padding:"12px 12px 24px",boxSizing:"border-box"}}>
+      <style>{globalStyles}</style>
+      <div style={{maxWidth:440,margin:"0 auto",display:"flex",flexDirection:"column",gap:8}}>
         {Controls(false)}
-      </div>
-      <div style={{position:"relative",width:"100%",maxWidth:400,aspectRatio:"400/440",borderRadius:22,overflow:"hidden",marginTop:8,boxShadow:`0 14px 52px #000a,0 0 0 1.5px ${phaseCol}33`}}>
-        {Canvas}
+        <div style={{aspectRatio:"400/440",marginTop:4}}>
+          {Canvas}
+        </div>
       </div>
     </div>
   );
