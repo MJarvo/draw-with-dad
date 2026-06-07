@@ -135,39 +135,6 @@ const PIZZA_STEPS = [
       </>
     ),
   },
-  {
-    hint: "Draw the happy eyes 👀",
-    type: "line",
-    ghost: () => gLine(
-      <><path d="M172,218 Q178,208 184,218"/><path d="M216,218 Q222,208 228,218"/></>
-    ),
-    completedSVG: () => (
-      <>
-        <path d="M200,60 L52,385 Q200,420 348,385 Z" fill="#F5C842"/>
-        <path d="M52,385 Q200,415 348,385 Q200,408 52,385Z" fill="#C8853A"/>
-        <path d="M200,100 L80,368 Q200,388 320,368 Z" fill="#D93B2B"/>
-        <path d="M200,108 L88,355 Q200,374 312,355 Z" fill="#F7DC6F"/>
-        <circle cx="200" cy="240" r="28" fill="#C0392B"/><circle cx="148" cy="308" r="22" fill="#C0392B"/><circle cx="252" cy="308" r="22" fill="#C0392B"/>
-        {ol(<><path d="M200,60 L52,385 Q200,420 348,385 Z"/><path d="M52,385 Q200,415 348,385 Q200,408 52,385Z"/><path d="M200,100 L80,368 Q200,388 320,368 Z"/><path d="M200,108 L88,355 Q200,374 312,355 Z"/><circle cx="200" cy="240" r="28"/><circle cx="148" cy="308" r="22"/><circle cx="252" cy="308" r="22"/></>)}
-      </>
-    ),
-  },
-  {
-    hint: "Draw the big smile 😄",
-    type: "line",
-    ghost: () => gLine(<path d="M178,268 Q200,290 222,268"/>),
-    completedSVG: () => (
-      <>
-        <path d="M200,60 L52,385 Q200,420 348,385 Z" fill="#F5C842"/>
-        <path d="M52,385 Q200,415 348,385 Q200,408 52,385Z" fill="#C8853A"/>
-        <path d="M200,100 L80,368 Q200,388 320,368 Z" fill="#D93B2B"/>
-        <path d="M200,108 L88,355 Q200,374 312,355 Z" fill="#F7DC6F"/>
-        <circle cx="200" cy="240" r="28" fill="#C0392B"/><circle cx="148" cy="308" r="22" fill="#C0392B"/><circle cx="252" cy="308" r="22" fill="#C0392B"/>
-        {ol(<><path d="M200,60 L52,385 Q200,420 348,385 Z"/><path d="M52,385 Q200,415 348,385 Q200,408 52,385Z"/><path d="M200,100 L80,368 Q200,388 320,368 Z"/><path d="M200,108 L88,355 Q200,374 312,355 Z"/><circle cx="200" cy="240" r="28"/><circle cx="148" cy="308" r="22"/><circle cx="252" cy="308" r="22"/></>)}
-        {ol(<><path d="M172,218 Q178,208 184,218"/><path d="M216,218 Q222,208 228,218"/></>, 5)}
-      </>
-    ),
-  },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -370,27 +337,6 @@ const ICE_CREAM_STEPS = [
       </>
     ),
   },
-  {
-    hint: "Draw the happy face 😊",
-    type: "line",
-    ghost: () => gLine(<><circle cx="183" cy="240" r="8"/><circle cx="217" cy="240" r="8"/><path d="M182,262 Q200,278 218,262"/></>),
-    completedSVG: () => (
-      <>
-        <path d="M155,295 L200,430 L245,295 Z" fill="#D4870A"/>
-        {ol(<><path d="M155,295 L200,430 L245,295"/><line x1="160" y1="315" x2="240" y2="315"/><line x1="168" y1="340" x2="232" y2="340"/><line x1="178" y1="365" x2="222" y2="365"/><line x1="190" y1="390" x2="210" y2="390"/></>)}
-        <ellipse cx="200" cy="252" rx="72" ry="64" fill="#F48FB1"/>
-        {ol(<ellipse cx="200" cy="252" rx="72" ry="64"/>)}
-        <ellipse cx="200" cy="178" rx="68" ry="60" fill="#80CBC4"/>
-        {ol(<ellipse cx="200" cy="178" rx="68" ry="60"/>)}
-        {ol(<><path d="M158,268 Q150,290 155,310"/><path d="M242,268 Q250,290 245,310"/><path d="M185,310 Q178,330 183,348"/></>, 5)}
-        <ellipse cx="178" cy="162" rx="10" ry="7" fill="#4E342E" transform="rotate(-20,178,162)"/>
-        <ellipse cx="215" cy="155" rx="10" ry="7" fill="#4E342E" transform="rotate(15,215,155)"/>
-        <ellipse cx="198" cy="185" rx="10" ry="7" fill="#4E342E" transform="rotate(-5,198,185)"/>
-        <ellipse cx="170" cy="185" rx="8" ry="6" fill="#4E342E"/>
-        <ellipse cx="228" cy="178" rx="8" ry="6" fill="#4E342E" transform="rotate(25,228,178)"/>
-      </>
-    ),
-  },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -483,25 +429,546 @@ const CAR_STEPS = [
       </>
     ),
   },
+];
+
+// ═══════════════════════════════════════════════════════════════════════
+// LESSON: 🦖 T-REX
+// Detailed dinosaur — body, tail, head, belly, legs, teeth, eye, arm, claws, spines
+// ═══════════════════════════════════════════════════════════════════════
+const TREX_C = { body:"#4CAF50", dark:"#2E7D32", belly:"#C8E6C9", mid:"#388E3C" };
+const _trexBase = <>
+  <path d="M88,232 Q88,166 172,154 Q258,142 284,198 Q310,238 282,300 Q250,346 163,343 Q86,337 88,284 Z" fill={TREX_C.body}/>
+  <path d="M94,270 Q54,292 28,344 Q10,380 38,382 Q63,385 82,349 Q102,314 116,285 Z" fill={TREX_C.body}/>
+  <path d="M260,163 Q265,117 312,99 Q364,84 391,117 Q417,149 401,183 Q386,218 356,226 Q318,236 292,221 Q261,202 260,176 Z" fill={TREX_C.body}/>
+</>;
+const _trexBelly = <path d="M168,160 Q238,150 278,197 Q300,234 278,294 Q246,340 163,340 Q102,334 90,294 Q89,268 100,250 Q120,218 168,206 Z" fill={TREX_C.belly}/>;
+const _trexOutline = ol(<>
+  <path d="M88,232 Q88,166 172,154 Q258,142 284,198 Q310,238 282,300 Q250,346 163,343 Q86,337 88,284 Z"/>
+  <path d="M94,270 Q54,292 28,344 Q10,380 38,382 Q63,385 82,349 Q102,314 116,285 Z"/>
+  <path d="M260,163 Q265,117 312,99 Q364,84 391,117 Q417,149 401,183 Q386,218 356,226 Q318,236 292,221 Q261,202 260,176 Z"/>
+</>);
+const _trexJaw = <path d="M266,213 Q275,237 320,246 Q364,252 384,230 Q404,212 401,196" fill="none" stroke="#1a1a1a" strokeWidth={SW} strokeLinecap="round"/>;
+const _trexLegs = <>
+  <path d="M148,337 L130,402 Q122,430 143,434 Q167,437 178,418 Q184,402 178,386 L175,337 Z" fill={TREX_C.dark}/>
+  <path d="M220,332 L222,390 Q222,418 246,423 Q270,427 274,410 Q278,394 266,378 L260,332 Z" fill={TREX_C.dark}/>
+</>;
+const _trexLegOutline = ol(<>
+  <path d="M148,337 L130,402 Q122,430 143,434 Q167,437 178,418 Q184,402 178,386 L175,337 Z"/>
+  <path d="M220,332 L222,390 Q222,418 246,423 Q270,427 274,410 Q278,394 266,378 L260,332 Z"/>
+</>);
+const _trexTeeth = <>
+  <rect x="269" y="213" width="13" height="20" rx="4" fill="white"/>
+  <rect x="286" y="212" width="13" height="22" rx="4" fill="white"/>
+  <rect x="303" y="211" width="13" height="22" rx="4" fill="white"/>
+  <rect x="320" y="212" width="13" height="21" rx="4" fill="white"/>
+  <rect x="337" y="213" width="12" height="19" rx="4" fill="white"/>
+  <rect x="352" y="215" width="11" height="17" rx="4" fill="white"/>
+  <rect x="366" y="218" width="10" height="14" rx="4" fill="white"/>
+  <rect x="278" y="228" width="10" height="14" rx="3" fill="white"/>
+  <rect x="293" y="226" width="10" height="16" rx="3" fill="white"/>
+  <rect x="308" y="225" width="10" height="17" rx="3" fill="white"/>
+  <rect x="323" y="226" width="10" height="15" rx="3" fill="white"/>
+  <rect x="337" y="229" width="9" height="12" rx="3" fill="white"/>
+</>;
+const _trexEye = <>
+  <circle cx="346" cy="138" r="17" fill="white"/>
+  <circle cx="350" cy="143" r="10" fill="#1a1a1a"/>
+  <circle cx="346" cy="138" r="4" fill="white"/>
+</>;
+const _trexArm = <>
+  <path d="M269,196 Q292,181 310,196 Q320,209 308,217 Q292,213 278,204 Z" fill={TREX_C.mid}/>
+  {ol(<path d="M269,196 Q292,181 310,196 Q320,209 308,217 Q292,213 278,204 Z"/>)}
+  {ol(<><line x1="310" y1="196" x2="322" y2="188"/><line x1="310" y1="196" x2="320" y2="202"/><line x1="310" y1="196" x2="314" y2="212"/></>, 4)}
+</>;
+const _trexClaws = ol(<>
+  <line x1="122" y1="434" x2="110" y2="444"/><line x1="133" y1="434" x2="127" y2="446"/>
+  <line x1="145" y1="434" x2="144" y2="447"/><line x1="157" y1="430" x2="162" y2="440"/>
+  <line x1="224" y1="423" x2="218" y2="436"/><line x1="236" y1="425" x2="236" y2="438"/>
+  <line x1="249" y1="423" x2="254" y2="434"/><line x1="263" y1="416" x2="270" y2="425"/>
+</>, 5);
+const _trexSpines = ol(<>
+  <path d="M174,154 Q170,132 180,120 Q188,110 192,128 Q196,144 205,152"/>
+  <path d="M205,152 Q202,132 212,122 Q220,114 222,130 Q224,146 230,153"/>
+  <path d="M230,153 Q228,136 237,127 Q244,120 245,135 Q246,150 252,160"/>
+</>, 5);
+
+const TREX_STEPS = [
   {
-    hint: "Draw the headlights and face 😎",
-    type: "line",
-    ghost: () => gLine(<><circle cx="78" cy="228" r="14"/><circle cx="322" cy="228" r="14"/><path d="M176,232 Q186,222 196,232"/><path d="M204,232 Q214,222 224,232"/><path d="M182,248 Q200,262 218,248"/></>),
-    completedSVG: () => (
-      <>
-        <path d="M48,270 L48,210 Q48,190 68,190 L148,190 L178,130 Q185,115 200,115 Q215,115 222,130 L252,190 L332,190 Q352,190 352,210 L352,270 Z" fill="#E53935"/>
-        {ol(<path d="M48,270 L48,210 Q48,190 68,190 L148,190 L178,130 Q185,115 200,115 Q215,115 222,130 L252,190 L332,190 Q352,190 352,210 L352,270 Z"/>)}
-        <path d="M152,188 L176,138 Q180,128 188,128 L200,128 L200,188 Z" fill="#90CAF9"/>
-        <path d="M200,128 L212,128 Q220,128 224,138 L248,188 L200,188 Z" fill="#90CAF9"/>
-        {ol(<><path d="M152,188 L176,138 Q180,128 188,128 L200,128 L200,188 Z"/><path d="M200,128 L212,128 Q220,128 224,138 L248,188 L200,188 Z"/></>)}
-        <rect x="48" y="258" width="304" height="20" rx="10" fill="#9E9E9E"/>
-        {ol(<rect x="48" y="258" width="304" height="20" rx="10"/>)}
-        <circle cx="110" cy="288" r="42" fill="#424242"/><circle cx="290" cy="288" r="42" fill="#424242"/>
-        {ol(<><circle cx="110" cy="288" r="42"/><circle cx="290" cy="288" r="42"/></>)}
-        <circle cx="110" cy="288" r="20" fill="#eee"/><circle cx="290" cy="288" r="20" fill="#eee"/>
-        {ol(<><circle cx="110" cy="288" r="20"/><circle cx="290" cy="288" r="20"/></>)}
-      </>
+    hint: "Colour the big green body",
+    type: "fill",
+    ghost: () => gFill(TREX_C.body, <>
+      <path d="M88,232 Q88,166 172,154 Q258,142 284,198 Q310,238 282,300 Q250,346 163,343 Q86,337 88,284 Z"/>
+      <path d="M94,270 Q54,292 28,344 Q10,380 38,382 Q63,385 82,349 Q102,314 116,285 Z"/>
+    </>),
+    completedSVG: () => null,
+  },
+  {
+    hint: "Colour the big head green",
+    type: "fill",
+    ghost: () => gFill(TREX_C.body,
+      <path d="M260,163 Q265,117 312,99 Q364,84 391,117 Q417,149 401,183 Q386,218 356,226 Q318,236 292,221 Q261,202 260,176 Z"/>
     ),
+    completedSVG: () => <>
+      <path d="M88,232 Q88,166 172,154 Q258,142 284,198 Q310,238 282,300 Q250,346 163,343 Q86,337 88,284 Z" fill={TREX_C.body}/>
+      <path d="M94,270 Q54,292 28,344 Q10,380 38,382 Q63,385 82,349 Q102,314 116,285 Z" fill={TREX_C.body}/>
+    </>,
+  },
+  {
+    hint: "Colour the pale belly",
+    type: "fill",
+    ghost: () => gFill(TREX_C.belly,
+      <path d="M168,160 Q238,150 278,197 Q300,234 278,294 Q246,340 163,340 Q102,334 90,294 Q89,268 100,250 Q120,218 168,206 Z"/>
+    ),
+    completedSVG: () => <>{_trexBase}{_trexOutline}</>,
+  },
+  {
+    hint: "Outline the body and head",
+    type: "line",
+    ghost: () => gLine(<>
+      <path d="M88,232 Q88,166 172,154 Q258,142 284,198 Q310,238 282,300 Q250,346 163,343 Q86,337 88,284 Z"/>
+      <path d="M94,270 Q54,292 28,344 Q10,380 38,382 Q63,385 82,349 Q102,314 116,285 Z"/>
+      <path d="M260,163 Q265,117 312,99 Q364,84 391,117 Q417,149 401,183 Q386,218 356,226 Q318,236 292,221 Q261,202 260,176 Z"/>
+    </>),
+    completedSVG: () => <>{_trexBase}{_trexBelly}{ol(<path d="M168,160 Q238,150 278,197 Q300,234 278,294 Q246,340 163,340 Q102,334 90,294 Q89,268 100,250 Q120,218 168,206 Z"/>)}</>,
+  },
+  {
+    hint: "Colour the dark green legs",
+    type: "fill",
+    ghost: () => gFill(TREX_C.dark, <>
+      <path d="M148,337 L130,402 Q122,430 143,434 Q167,437 178,418 Q184,402 178,386 L175,337 Z"/>
+      <path d="M220,332 L222,390 Q222,418 246,423 Q270,427 274,410 Q278,394 266,378 L260,332 Z"/>
+    </>),
+    completedSVG: () => <>{_trexBase}{_trexBelly}{_trexOutline}{ol(<path d="M168,160 Q238,150 278,197 Q300,234 278,294 Q246,340 163,340 Q102,334 90,294 Q89,268 100,250 Q120,218 168,206 Z"/>)}{_trexJaw}</>,
+  },
+  {
+    hint: "Outline the legs and draw toe claws",
+    type: "line",
+    ghost: () => gLine(<>
+      <path d="M148,337 L130,402 Q122,430 143,434 Q167,437 178,418 Q184,402 178,386 L175,337 Z"/>
+      <path d="M220,332 L222,390 Q222,418 246,423 Q270,427 274,410 Q278,394 266,378 L260,332 Z"/>
+      <line x1="122" y1="434" x2="110" y2="444"/><line x1="133" y1="434" x2="127" y2="446"/>
+      <line x1="145" y1="434" x2="144" y2="447"/><line x1="157" y1="430" x2="162" y2="440"/>
+      <line x1="224" y1="423" x2="218" y2="436"/><line x1="236" y1="425" x2="236" y2="438"/>
+      <line x1="249" y1="423" x2="254" y2="434"/><line x1="263" y1="416" x2="270" y2="425"/>
+    </>),
+    completedSVG: () => <>{_trexBase}{_trexBelly}{_trexOutline}{ol(<path d="M168,160 Q238,150 278,197 Q300,234 278,294 Q246,340 163,340 Q102,334 90,294 Q89,268 100,250 Q120,218 168,206 Z"/>)}{_trexJaw}{_trexLegs}</>,
+  },
+  {
+    hint: "Fill in the white teeth",
+    type: "fill",
+    ghost: () => gFill("white", <>
+      <rect x="269" y="213" width="13" height="20" rx="4"/>
+      <rect x="286" y="212" width="13" height="22" rx="4"/>
+      <rect x="303" y="211" width="13" height="22" rx="4"/>
+      <rect x="320" y="212" width="13" height="21" rx="4"/>
+      <rect x="337" y="213" width="12" height="19" rx="4"/>
+      <rect x="352" y="215" width="11" height="17" rx="4"/>
+      <rect x="278" y="228" width="10" height="14" rx="3"/>
+      <rect x="293" y="226" width="10" height="16" rx="3"/>
+      <rect x="308" y="225" width="10" height="17" rx="3"/>
+      <rect x="323" y="226" width="10" height="15" rx="3"/>
+    </>),
+    completedSVG: () => <>{_trexBase}{_trexBelly}{_trexOutline}{ol(<path d="M168,160 Q238,150 278,197 Q300,234 278,294 Q246,340 163,340 Q102,334 90,294 Q89,268 100,250 Q120,218 168,206 Z"/>)}{_trexJaw}{_trexLegs}{_trexLegOutline}{_trexClaws}</>,
+  },
+  {
+    hint: "Draw the outline of each tooth",
+    type: "line",
+    ghost: () => gLine(<>
+      <rect x="269" y="213" width="13" height="20" rx="4"/>
+      <rect x="286" y="212" width="13" height="22" rx="4"/>
+      <rect x="303" y="211" width="13" height="22" rx="4"/>
+      <rect x="320" y="212" width="13" height="21" rx="4"/>
+      <rect x="337" y="213" width="12" height="19" rx="4"/>
+      <rect x="278" y="228" width="10" height="14" rx="3"/>
+      <rect x="293" y="226" width="10" height="16" rx="3"/>
+      <rect x="308" y="225" width="10" height="17" rx="3"/>
+    </>),
+    completedSVG: () => <>{_trexBase}{_trexBelly}{_trexOutline}{ol(<path d="M168,160 Q238,150 278,197 Q300,234 278,294 Q246,340 163,340 Q102,334 90,294 Q89,268 100,250 Q120,218 168,206 Z"/>)}{_trexJaw}{_trexLegs}{_trexLegOutline}{_trexClaws}{_trexTeeth}</>,
+  },
+  {
+    hint: "Fill in the big white eye",
+    type: "fill",
+    ghost: () => gFill("white", <circle cx="346" cy="138" r="17"/>),
+    completedSVG: () => <>{_trexBase}{_trexBelly}{_trexOutline}{ol(<path d="M168,160 Q238,150 278,197 Q300,234 278,294 Q246,340 163,340 Q102,334 90,294 Q89,268 100,250 Q120,218 168,206 Z"/>)}{_trexJaw}{_trexLegs}{_trexLegOutline}{_trexClaws}{_trexTeeth}{ol(<><rect x="269" y="213" width="13" height="20" rx="4"/><rect x="286" y="212" width="13" height="22" rx="4"/><rect x="303" y="211" width="13" height="22" rx="4"/><rect x="320" y="212" width="13" height="21" rx="4"/><rect x="337" y="213" width="12" height="19" rx="4"/><rect x="278" y="228" width="10" height="14" rx="3"/><rect x="293" y="226" width="10" height="16" rx="3"/><rect x="308" y="225" width="10" height="17" rx="3"/></>)}</>,
+  },
+  {
+    hint: "Draw the dark pupil and eye shine",
+    type: "line",
+    ghost: () => gLine(<><circle cx="346" cy="138" r="17"/><circle cx="350" cy="143" r="10"/><circle cx="346" cy="138" r="4"/></>),
+    completedSVG: () => <>{_trexBase}{_trexBelly}{_trexOutline}{ol(<path d="M168,160 Q238,150 278,197 Q300,234 278,294 Q246,340 163,340 Q102,334 90,294 Q89,268 100,250 Q120,218 168,206 Z"/>)}{_trexJaw}{_trexLegs}{_trexLegOutline}{_trexClaws}{_trexTeeth}{ol(<><rect x="269" y="213" width="13" height="20" rx="4"/><rect x="286" y="212" width="13" height="22" rx="4"/><rect x="303" y="211" width="13" height="22" rx="4"/><rect x="320" y="212" width="13" height="21" rx="4"/><rect x="337" y="213" width="12" height="19" rx="4"/><rect x="278" y="228" width="10" height="14" rx="3"/><rect x="293" y="226" width="10" height="16" rx="3"/><rect x="308" y="225" width="10" height="17" rx="3"/></>)}{_trexEye}</>,
+  },
+  {
+    hint: "Draw the tiny arm and finger claws",
+    type: "line",
+    ghost: () => gLine(<>
+      <path d="M269,196 Q292,181 310,196 Q320,209 308,217 Q292,213 278,204 Z"/>
+      <line x1="310" y1="196" x2="322" y2="188"/><line x1="310" y1="196" x2="320" y2="202"/>
+      <line x1="310" y1="196" x2="314" y2="212"/>
+    </>),
+    completedSVG: () => <>{_trexBase}{_trexBelly}{_trexOutline}{ol(<path d="M168,160 Q238,150 278,197 Q300,234 278,294 Q246,340 163,340 Q102,334 90,294 Q89,268 100,250 Q120,218 168,206 Z"/>)}{_trexJaw}{_trexLegs}{_trexLegOutline}{_trexClaws}{_trexTeeth}{ol(<><rect x="269" y="213" width="13" height="20" rx="4"/><rect x="286" y="212" width="13" height="22" rx="4"/><rect x="303" y="211" width="13" height="22" rx="4"/><rect x="320" y="212" width="13" height="21" rx="4"/><rect x="337" y="213" width="12" height="19" rx="4"/><rect x="278" y="228" width="10" height="14" rx="3"/><rect x="293" y="226" width="10" height="16" rx="3"/><rect x="308" y="225" width="10" height="17" rx="3"/></>)}{_trexEye}{_trexSpines}</>,
+  },
+  {
+    hint: "Draw the spines along the back",
+    type: "line",
+    ghost: () => gLine(<>
+      <path d="M174,154 Q170,132 180,120 Q188,110 192,128 Q196,144 205,152"/>
+      <path d="M205,152 Q202,132 212,122 Q220,114 222,130 Q224,146 230,153"/>
+      <path d="M230,153 Q228,136 237,127 Q244,120 245,135 Q246,150 252,160"/>
+    </>),
+    completedSVG: () => <>{_trexBase}{_trexBelly}{_trexOutline}{ol(<path d="M168,160 Q238,150 278,197 Q300,234 278,294 Q246,340 163,340 Q102,334 90,294 Q89,268 100,250 Q120,218 168,206 Z"/>)}{_trexJaw}{_trexLegs}{_trexLegOutline}{_trexClaws}{_trexTeeth}{ol(<><rect x="269" y="213" width="13" height="20" rx="4"/><rect x="286" y="212" width="13" height="22" rx="4"/><rect x="303" y="211" width="13" height="22" rx="4"/><rect x="320" y="212" width="13" height="21" rx="4"/><rect x="337" y="213" width="12" height="19" rx="4"/><rect x="278" y="228" width="10" height="14" rx="3"/><rect x="293" y="226" width="10" height="16" rx="3"/><rect x="308" y="225" width="10" height="17" rx="3"/></>)}{_trexEye}{_trexArm}</>,
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════════
+// LESSON: 🚀 ROCKET IN SPACE
+// Detailed rocket with porthole, fins, flames, planet, rings, stars
+// ═══════════════════════════════════════════════════════════════════════
+const _rBody = "M168,135 L168,338 L232,338 L232,135 Z";
+const _rNose = "M168,135 Q168,90 200,70 Q232,90 232,135 Z";
+const _rFinL = "M168,298 L110,374 L168,348 Z";
+const _rFinR = "M232,298 L290,374 L232,348 Z";
+const _rMiniL = "M158,210 L134,234 L158,222 Z";
+const _rMiniR = "M242,210 L266,234 L242,222 Z";
+const _rOutline = ol(<>
+  <path d={_rBody}/><path d={_rNose}/>
+  <path d={_rFinL}/><path d={_rFinR}/>
+  <path d={_rMiniL}/><path d={_rMiniR}/>
+</>);
+const _rWindow1 = <circle cx="200" cy="188" r="32" fill="#1565C0"/>;
+const _rWindow2 = <circle cx="200" cy="188" r="22" fill="#42A5F5"/>;
+const _rWindowShine = <ellipse cx="193" cy="180" rx="8" ry="5" transform="rotate(-30,193,180)" fill="rgba(255,255,255,0.6)"/>;
+const _rWindowOutline = ol(<circle cx="200" cy="188" r="32"/>);
+const _rPlanet = <circle cx="318" cy="90" r="46" fill="#FF8A65"/>;
+const _rRing = <>
+  <ellipse cx="318" cy="90" rx="72" ry="19" fill="none" stroke="#1a1a1a" strokeWidth={SW}/>
+  <ellipse cx="318" cy="90" rx="72" ry="19" fill="none" stroke="#FF7043" strokeWidth="14" opacity="0.5"/>
+  {ol(<ellipse cx="318" cy="90" rx="72" ry="19"/>)}
+</>;
+const _rFlameOut = <path d="M177,338 Q166,382 188,412 Q200,424 212,412 Q234,382 223,338 Z" fill="#FF6D00"/>;
+const _rFlameIn = <path d="M185,338 Q178,374 195,403 Q200,412 205,403 Q222,374 215,338 Z" fill="#FFD600"/>;
+const _rStars = ol(<>
+  <circle cx="48" cy="58" r="5"/><circle cx="82" cy="28" r="4"/>
+  <circle cx="340" cy="28" r="4"/><circle cx="372" cy="55" r="5"/>
+  <circle cx="55" cy="155" r="3"/><circle cx="36" cy="240" r="4"/>
+  <circle cx="368" cy="180" r="3"/><circle cx="378" cy="130" r="5"/>
+  <circle cx="64" cy="320" r="3"/><circle cx="22" cy="360" r="4"/>
+</>, 3);
+
+const ROCKET_STEPS = [
+  {
+    hint: "Colour the silver rocket body",
+    type: "fill",
+    ghost: () => gFill("#CFD8DC", <path d={_rBody}/>),
+    completedSVG: () => null,
+  },
+  {
+    hint: "Colour the red nose cone",
+    type: "fill",
+    ghost: () => gFill("#E53935", <path d={_rNose}/>),
+    completedSVG: () => <path d={_rBody} fill="#CFD8DC"/>,
+  },
+  {
+    hint: "Colour all four fins red",
+    type: "fill",
+    ghost: () => gFill("#E53935", <><path d={_rFinL}/><path d={_rFinR}/><path d={_rMiniL}/><path d={_rMiniR}/></>),
+    completedSVG: () => <><path d={_rBody} fill="#CFD8DC"/><path d={_rNose} fill="#E53935"/></>,
+  },
+  {
+    hint: "Trace the outline of the whole rocket",
+    type: "line",
+    ghost: () => gLine(<><path d={_rBody}/><path d={_rNose}/><path d={_rFinL}/><path d={_rFinR}/><path d={_rMiniL}/><path d={_rMiniR}/></>),
+    completedSVG: () => <>
+      <path d={_rBody} fill="#CFD8DC"/>
+      <path d={_rNose} fill="#E53935"/>
+      <path d={_rFinL} fill="#E53935"/><path d={_rFinR} fill="#E53935"/>
+      <path d={_rMiniL} fill="#E53935"/><path d={_rMiniR} fill="#E53935"/>
+    </>,
+  },
+  {
+    hint: "Colour the dark blue porthole",
+    type: "fill",
+    ghost: () => gFill("#1565C0", <circle cx="200" cy="188" r="32"/>),
+    completedSVG: () => <>
+      <path d={_rBody} fill="#CFD8DC"/>
+      <path d={_rNose} fill="#E53935"/>
+      <path d={_rFinL} fill="#E53935"/><path d={_rFinR} fill="#E53935"/>
+      <path d={_rMiniL} fill="#E53935"/><path d={_rMiniR} fill="#E53935"/>
+      {_rOutline}
+    </>,
+  },
+  {
+    hint: "Colour the lighter blue inside the porthole",
+    type: "fill",
+    ghost: () => gFill("#42A5F5", <circle cx="200" cy="188" r="22"/>),
+    completedSVG: () => <>
+      <path d={_rBody} fill="#CFD8DC"/>
+      <path d={_rNose} fill="#E53935"/>
+      <path d={_rFinL} fill="#E53935"/><path d={_rFinR} fill="#E53935"/>
+      <path d={_rMiniL} fill="#E53935"/><path d={_rMiniR} fill="#E53935"/>
+      {_rOutline}{_rWindow1}
+    </>,
+  },
+  {
+    hint: "Colour the orange planet",
+    type: "fill",
+    ghost: () => gFill("#FF8A65", <circle cx="318" cy="90" r="46"/>),
+    completedSVG: () => <>
+      <path d={_rBody} fill="#CFD8DC"/>
+      <path d={_rNose} fill="#E53935"/>
+      <path d={_rFinL} fill="#E53935"/><path d={_rFinR} fill="#E53935"/>
+      <path d={_rMiniL} fill="#E53935"/><path d={_rMiniR} fill="#E53935"/>
+      {_rOutline}{_rWindow1}{_rWindow2}{_rWindowShine}{_rWindowOutline}
+    </>,
+  },
+  {
+    hint: "Draw the planet's rings",
+    type: "line",
+    ghost: () => gLine(<ellipse cx="318" cy="90" rx="72" ry="19"/>),
+    completedSVG: () => <>
+      <path d={_rBody} fill="#CFD8DC"/>
+      <path d={_rNose} fill="#E53935"/>
+      <path d={_rFinL} fill="#E53935"/><path d={_rFinR} fill="#E53935"/>
+      <path d={_rMiniL} fill="#E53935"/><path d={_rMiniR} fill="#E53935"/>
+      {_rOutline}{_rWindow1}{_rWindow2}{_rWindowShine}{_rWindowOutline}{_rPlanet}
+      {ol(<circle cx="318" cy="90" r="46"/>)}
+    </>,
+  },
+  {
+    hint: "Colour the orange outer flame",
+    type: "fill",
+    ghost: () => gFill("#FF6D00", <path d="M177,338 Q166,382 188,412 Q200,424 212,412 Q234,382 223,338 Z"/>),
+    completedSVG: () => <>
+      <path d={_rBody} fill="#CFD8DC"/>
+      <path d={_rNose} fill="#E53935"/>
+      <path d={_rFinL} fill="#E53935"/><path d={_rFinR} fill="#E53935"/>
+      <path d={_rMiniL} fill="#E53935"/><path d={_rMiniR} fill="#E53935"/>
+      {_rOutline}{_rWindow1}{_rWindow2}{_rWindowShine}{_rWindowOutline}{_rPlanet}{_rRing}
+    </>,
+  },
+  {
+    hint: "Colour the bright yellow inner flame",
+    type: "fill",
+    ghost: () => gFill("#FFD600", <path d="M185,338 Q178,374 195,403 Q200,412 205,403 Q222,374 215,338 Z"/>),
+    completedSVG: () => <>
+      <path d={_rBody} fill="#CFD8DC"/>
+      <path d={_rNose} fill="#E53935"/>
+      <path d={_rFinL} fill="#E53935"/><path d={_rFinR} fill="#E53935"/>
+      <path d={_rMiniL} fill="#E53935"/><path d={_rMiniR} fill="#E53935"/>
+      {_rOutline}{_rWindow1}{_rWindow2}{_rWindowShine}{_rWindowOutline}{_rPlanet}{_rRing}{_rFlameOut}
+    </>,
+  },
+  {
+    hint: "Draw the stars all around",
+    type: "line",
+    ghost: () => gLine(<>
+      <circle cx="48" cy="58" r="5"/><circle cx="82" cy="28" r="4"/>
+      <circle cx="340" cy="28" r="4"/><circle cx="372" cy="55" r="5"/>
+      <circle cx="55" cy="155" r="3"/><circle cx="36" cy="240" r="4"/>
+      <circle cx="368" cy="180" r="3"/><circle cx="378" cy="130" r="5"/>
+      <circle cx="64" cy="320" r="3"/><circle cx="22" cy="360" r="4"/>
+    </>),
+    completedSVG: () => <>
+      <path d={_rBody} fill="#CFD8DC"/>
+      <path d={_rNose} fill="#E53935"/>
+      <path d={_rFinL} fill="#E53935"/><path d={_rFinR} fill="#E53935"/>
+      <path d={_rMiniL} fill="#E53935"/><path d={_rMiniR} fill="#E53935"/>
+      {_rOutline}{_rWindow1}{_rWindow2}{_rWindowShine}{_rWindowOutline}{_rPlanet}{_rRing}{_rFlameOut}{_rFlameIn}
+    </>,
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════════
+// LESSON: 🏰 CASTLE
+// Towers, battlements, gate, moat, windows, flag, drawbridge, stone lines
+// ═══════════════════════════════════════════════════════════════════════
+const CAST_G = "#90A4AE";  // stone grey
+const CAST_D = "#546E7A";  // dark stone
+const _castTowers = <>
+  <rect x="44" y="178" width="96" height="212" fill={CAST_G}/>
+  <rect x="260" y="178" width="96" height="212" fill={CAST_G}/>
+  <rect x="75" y="278" width="250" height="112" fill={CAST_G}/>
+</>;
+const _castCenter = <rect x="152" y="108" width="96" height="170" fill={CAST_D}/>;
+const _castOutline = ol(<>
+  <rect x="44" y="178" width="96" height="212"/><rect x="260" y="178" width="96" height="212"/>
+  <rect x="75" y="278" width="250" height="112"/><rect x="152" y="108" width="96" height="170"/>
+</>);
+const _castBattlements = <>
+  {/* left tower */}
+  <rect x="44" y="152" width="18" height="26" fill={CAST_G}/><rect x="70" y="152" width="18" height="26" fill={CAST_G}/>
+  <rect x="96" y="152" width="18" height="26" fill={CAST_G}/><rect x="122" y="152" width="18" height="26" fill={CAST_G}/>
+  {/* right tower */}
+  <rect x="260" y="152" width="18" height="26" fill={CAST_G}/><rect x="286" y="152" width="18" height="26" fill={CAST_G}/>
+  <rect x="312" y="152" width="18" height="26" fill={CAST_G}/><rect x="338" y="152" width="18" height="26" fill={CAST_G}/>
+  {/* center tower */}
+  <rect x="152" y="82" width="16" height="26" fill={CAST_D}/><rect x="178" y="82" width="16" height="26" fill={CAST_D}/>
+  <rect x="204" y="82" width="16" height="26" fill={CAST_D}/><rect x="230" y="82" width="16" height="26" fill={CAST_D}/>
+</>;
+const _castBattlementsOutline = ol(<>
+  <rect x="44" y="152" width="18" height="26"/><rect x="70" y="152" width="18" height="26"/>
+  <rect x="96" y="152" width="18" height="26"/><rect x="122" y="152" width="18" height="26"/>
+  <rect x="260" y="152" width="18" height="26"/><rect x="286" y="152" width="18" height="26"/>
+  <rect x="312" y="152" width="18" height="26"/><rect x="338" y="152" width="18" height="26"/>
+  <rect x="152" y="82" width="16" height="26"/><rect x="178" y="82" width="16" height="26"/>
+  <rect x="204" y="82" width="16" height="26"/><rect x="230" y="82" width="16" height="26"/>
+</>);
+const _castMoat = <rect x="0" y="388" width="400" height="52" fill="#1565C0"/>;
+const _castGate = <path d="M157,390 L157,312 Q157,272 200,272 Q243,272 243,312 L243,390 Z" fill="#1a1a1a"/>;
+const _castWindows = <>
+  <rect x="74" y="218" width="32" height="50" rx="16" fill="#1565C0"/>
+  <rect x="294" y="218" width="32" height="50" rx="16" fill="#1565C0"/>
+  <rect x="166" y="148" width="24" height="38" rx="12" fill="#1565C0"/>
+  <rect x="210" y="148" width="24" height="38" rx="12" fill="#1565C0"/>
+</>;
+const _castWindowOutline = ol(<>
+  <rect x="74" y="218" width="32" height="50" rx="16"/>
+  <rect x="294" y="218" width="32" height="50" rx="16"/>
+  <rect x="166" y="148" width="24" height="38" rx="12"/>
+  <rect x="210" y="148" width="24" height="38" rx="12"/>
+</>);
+const _castFlag = <>
+  <line x1="200" y1="108" x2="200" y2="52" stroke="#1a1a1a" strokeWidth="4"/>
+  <path d="M200,52 L246,68 L200,84 Z" fill="#E53935"/>
+  {ol(<path d="M200,52 L246,68 L200,84 Z"/>)}
+</>;
+const _castBridge = <>
+  <rect x="157" y="388" width="86" height="30" fill="#8D6E63"/>
+  {ol(<rect x="157" y="388" width="86" height="30"/>)}
+  {ol(<><line x1="175" y1="388" x2="175" y2="418"/><line x1="192" y1="388" x2="192" y2="418"/>
+       <line x1="209" y1="388" x2="209" y2="418"/><line x1="226" y1="388" x2="226" y2="418"/></>, 4)}
+</>;
+const _castStoneLines = ol(<>
+  {[208,238,268,298,328,358].map(y=><line key={y} x1="44" y1={y} x2="356" y2={y}/>)}
+  {[140,168,196,224,252].map(y=><line key={y} x1="152" y1={y} x2="248" y2={y}/>)}
+</>, 2);
+
+const CASTLE_STEPS = [
+  {
+    hint: "Colour the left and right stone towers",
+    type: "fill",
+    ghost: () => gFill(CAST_G, <>
+      <rect x="44" y="178" width="96" height="212"/>
+      <rect x="260" y="178" width="96" height="212"/>
+    </>),
+    completedSVG: () => null,
+  },
+  {
+    hint: "Colour the main wall between the towers",
+    type: "fill",
+    ghost: () => gFill(CAST_G, <rect x="75" y="278" width="250" height="112"/>),
+    completedSVG: () => <>
+      <rect x="44" y="178" width="96" height="212" fill={CAST_G}/>
+      <rect x="260" y="178" width="96" height="212" fill={CAST_G}/>
+    </>,
+  },
+  {
+    hint: "Colour the tall dark center tower",
+    type: "fill",
+    ghost: () => gFill(CAST_D, <rect x="152" y="108" width="96" height="170"/>),
+    completedSVG: () => <>
+      <rect x="44" y="178" width="96" height="212" fill={CAST_G}/>
+      <rect x="260" y="178" width="96" height="212" fill={CAST_G}/>
+      <rect x="75" y="278" width="250" height="112" fill={CAST_G}/>
+      {ol(<><rect x="44" y="178" width="96" height="212"/><rect x="260" y="178" width="96" height="212"/><rect x="75" y="278" width="250" height="112"/></>)}
+    </>,
+  },
+  {
+    hint: "Colour the battlements on every tower",
+    type: "fill",
+    ghost: () => gFill(CAST_G, <>
+      <rect x="44" y="152" width="18" height="26"/><rect x="70" y="152" width="18" height="26"/>
+      <rect x="96" y="152" width="18" height="26"/><rect x="122" y="152" width="18" height="26"/>
+      <rect x="260" y="152" width="18" height="26"/><rect x="286" y="152" width="18" height="26"/>
+      <rect x="312" y="152" width="18" height="26"/><rect x="338" y="152" width="18" height="26"/>
+    </>),
+    completedSVG: () => <>
+      <rect x="44" y="178" width="96" height="212" fill={CAST_G}/>
+      <rect x="260" y="178" width="96" height="212" fill={CAST_G}/>
+      <rect x="75" y="278" width="250" height="112" fill={CAST_G}/>
+      <rect x="152" y="108" width="96" height="170" fill={CAST_D}/>
+      {_castOutline}
+    </>,
+  },
+  {
+    hint: "Colour the center tower battlements darker",
+    type: "fill",
+    ghost: () => gFill(CAST_D, <>
+      <rect x="152" y="82" width="16" height="26"/><rect x="178" y="82" width="16" height="26"/>
+      <rect x="204" y="82" width="16" height="26"/><rect x="230" y="82" width="16" height="26"/>
+    </>),
+    completedSVG: () => <>
+      {_castTowers}{_castCenter}{_castOutline}
+      <rect x="44" y="152" width="18" height="26" fill={CAST_G}/><rect x="70" y="152" width="18" height="26" fill={CAST_G}/>
+      <rect x="96" y="152" width="18" height="26" fill={CAST_G}/><rect x="122" y="152" width="18" height="26" fill={CAST_G}/>
+      <rect x="260" y="152" width="18" height="26" fill={CAST_G}/><rect x="286" y="152" width="18" height="26" fill={CAST_G}/>
+      <rect x="312" y="152" width="18" height="26" fill={CAST_G}/><rect x="338" y="152" width="18" height="26" fill={CAST_G}/>
+      {ol(<><rect x="44" y="152" width="18" height="26"/><rect x="70" y="152" width="18" height="26"/><rect x="96" y="152" width="18" height="26"/><rect x="122" y="152" width="18" height="26"/><rect x="260" y="152" width="18" height="26"/><rect x="286" y="152" width="18" height="26"/><rect x="312" y="152" width="18" height="26"/><rect x="338" y="152" width="18" height="26"/></>)}
+    </>,
+  },
+  {
+    hint: "Fill the blue moat with water",
+    type: "fill",
+    ghost: () => gFill("#1565C0", <rect x="0" y="388" width="400" height="52"/>),
+    completedSVG: () => <>
+      {_castTowers}{_castCenter}{_castOutline}{_castBattlements}{_castBattlementsOutline}
+    </>,
+  },
+  {
+    hint: "Fill in the dark gate archway",
+    type: "fill",
+    ghost: () => gFill("#1a1a1a",
+      <path d="M157,390 L157,312 Q157,272 200,272 Q243,272 243,312 L243,390 Z"/>
+    ),
+    completedSVG: () => <>
+      {_castTowers}{_castCenter}{_castOutline}{_castBattlements}{_castBattlementsOutline}{_castMoat}
+    </>,
+  },
+  {
+    hint: "Colour the blue arched windows",
+    type: "fill",
+    ghost: () => gFill("#1565C0", <>
+      <rect x="74" y="218" width="32" height="50" rx="16"/>
+      <rect x="294" y="218" width="32" height="50" rx="16"/>
+      <rect x="166" y="148" width="24" height="38" rx="12"/>
+      <rect x="210" y="148" width="24" height="38" rx="12"/>
+    </>),
+    completedSVG: () => <>
+      {_castTowers}{_castCenter}{_castOutline}{_castBattlements}{_castBattlementsOutline}{_castMoat}{_castGate}
+      {ol(<path d="M157,390 L157,312 Q157,272 200,272 Q243,272 243,312 L243,390 Z"/>)}
+    </>,
+  },
+  {
+    hint: "Draw the red flag on the center tower",
+    type: "fill",
+    ghost: () => gFill("#E53935", <path d="M200,52 L246,68 L200,84 Z"/>),
+    completedSVG: () => <>
+      {_castTowers}{_castCenter}{_castOutline}{_castBattlements}{_castBattlementsOutline}
+      {_castMoat}{_castGate}{ol(<path d="M157,390 L157,312 Q157,272 200,272 Q243,272 243,312 L243,390 Z"/>)}
+      {_castWindows}{_castWindowOutline}
+    </>,
+  },
+  {
+    hint: "Draw the wooden drawbridge planks",
+    type: "fill",
+    ghost: () => gFill("#8D6E63", <rect x="157" y="388" width="86" height="30"/>),
+    completedSVG: () => <>
+      {_castTowers}{_castCenter}{_castOutline}{_castBattlements}{_castBattlementsOutline}
+      {_castMoat}{_castGate}{ol(<path d="M157,390 L157,312 Q157,272 200,272 Q243,272 243,312 L243,390 Z"/>)}
+      {_castWindows}{_castWindowOutline}{_castFlag}
+    </>,
+  },
+  {
+    hint: "Draw the stone lines across the walls",
+    type: "line",
+    ghost: () => gLine(<>
+      {[208,238,268,298,328,358].map(y=><line key={y} x1="44" y1={y} x2="356" y2={y}/>)}
+      {[140,168,196,224,252].map(y=><line key={y} x1="152" y1={y} x2="248" y2={y}/>)}
+    </>),
+    completedSVG: () => <>
+      {_castTowers}{_castCenter}{_castOutline}{_castBattlements}{_castBattlementsOutline}
+      {_castMoat}{_castGate}{ol(<path d="M157,390 L157,312 Q157,272 200,272 Q243,272 243,312 L243,390 Z"/>)}
+      {_castWindows}{_castWindowOutline}{_castFlag}{_castBridge}
+    </>,
   },
 ];
 
@@ -509,10 +976,13 @@ const CAR_STEPS = [
 // LESSON REGISTRY
 // ═══════════════════════════════════════════════════════════════════════
 const LESSONS = [
-  { id:"pizza",   title:"Happy Pizza", emoji:"🍕", color:"#D93B2B", bg:"#1a0800", thumbColor:"#FFB74D", steps: PIZZA_STEPS },
-  { id:"rainbow", title:"Rainbow",     emoji:"🌈", color:"#7C4DFF", bg:"#080820", thumbColor:"#CE93D8", steps: RAINBOW_STEPS },
-  { id:"icecream",title:"Ice Cream",   emoji:"🍦", color:"#F48FB1", bg:"#1a0812", thumbColor:"#F48FB1", steps: ICE_CREAM_STEPS },
-  { id:"car",     title:"Race Car",    emoji:"🚗", color:"#E53935", bg:"#160808", thumbColor:"#EF9A9A", steps: CAR_STEPS },
+  { id:"pizza",   title:"Pizza Slice",  emoji:"🍕", color:"#D93B2B", bg:"#1a0800", steps: PIZZA_STEPS },
+  { id:"rainbow", title:"Rainbow",      emoji:"🌈", color:"#7C4DFF", bg:"#080820", steps: RAINBOW_STEPS },
+  { id:"icecream",title:"Ice Cream",    emoji:"🍦", color:"#F48FB1", bg:"#1a0812", steps: ICE_CREAM_STEPS },
+  { id:"car",     title:"Race Car",     emoji:"🚗", color:"#E53935", bg:"#160808", steps: CAR_STEPS },
+  { id:"trex",    title:"T-Rex",        emoji:"🦖", color:"#4CAF50", bg:"#0a1a0a", steps: TREX_STEPS },
+  { id:"rocket",  title:"Rocket",       emoji:"🚀", color:"#607D8B", bg:"#080810", steps: ROCKET_STEPS },
+  { id:"castle",  title:"Castle",       emoji:"🏰", color:"#607D8B", bg:"#0d1218", steps: CASTLE_STEPS },
 ];
 
 function Stars() {
